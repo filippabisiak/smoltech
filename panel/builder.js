@@ -2030,6 +2030,11 @@
       var t = e.target;
       if (!t || t.nodeType !== 1) t = t && t.parentElement;
       if (!t) return;
+      /* The dashed control is a sibling of the card, not inside it. Selecting it
+         clears the card, and the copy then lands on the last repeatable in the
+         section — often far below the click. Leave the selection alone so the
+         button can insert the copy right after this item. */
+      if (t.closest && t.closest('.stb-addone')) return;
       var iconSlot = t.closest && t.closest('.proof__ico, .about-dir__ico');
       if (iconSlot && iconSlot.closest && iconSlot.closest('#main')) {
         e.preventDefault();
@@ -2592,7 +2597,7 @@
         e.preventDefault();
         e.stopPropagation();
         if (variant) addVariant();
-        else addAnother();
+        else addAnother(item);
       });
       item.insertAdjacentElement('afterend', b);
     }
@@ -6294,6 +6299,11 @@
         ['p', 'Текст, який можна змінити.', 'Text you can change.'],
         ['ul.ticks > li, ol.ticks > li', 'Пункт', 'Item']
       ];
+      /* A plain privacy-policy bullet has no card markup. Blank it too, or the
+         copy is the same sentence and looks like nothing was added. */
+      if (copy.matches && copy.matches('li') && !copy.querySelector('p, div, ul, ol, figure, article, h1, h2, h3, h4, img, picture, button, svg, table')) {
+        fillText(copy, 'Пункт', 'Item');
+      }
       rules.forEach(function (rule) {
         var list = [];
         if (copy.matches && copy.matches(rule[0])) list.push(copy);
@@ -6333,8 +6343,9 @@
       return all.length ? all[all.length - 1] : null;
     }
 
-    function addAnother() {
-      var src = repeatableNow();
+    function addAnother(srcEl) {
+      var pinned = srcEl && srcEl.nodeType === 1 && srcEl.isConnected && srcEl.matches && srcEl.matches(REPEAT_SEL) ? srcEl : null;
+      var src = pinned || repeatableNow();
       if (!src) { say('Click a card, video, photo or list item first.', 'err'); return; }
       if (src.matches('ul.model-strip > li')) { addVariant(); return; }
       if (src.matches('article.mach')) { openAddMach(); return; }
