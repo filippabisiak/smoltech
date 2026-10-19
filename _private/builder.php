@@ -247,6 +247,7 @@ function st_builder_preview(string $id): array
     $html = st_builder_mark($html, '<footer class="ftr"', 'data-st-region="footer"');
     $html = st_builder_mark($html, '<nav class="mbar"', 'data-st-region="mbar"');
     $html = st_builder_mark($html, '<section class="sec cta" id="zapyt"', 'data-st-shared="form"');
+    $html = st_preview_show($html);
     $p = strpos($html, '<html');
     if ($p !== false) {
         $html = substr_replace($html, '<html data-st-i18n="off" data-st-builder="1"', $p, strlen('<html'));

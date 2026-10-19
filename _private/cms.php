@@ -1292,6 +1292,15 @@ function st_cms_page_stamp(string $id): string
     return substr(sha1(implode('|', $parts)), 0, 16);
 }
 
+/** Editor previews load in a srcdoc iframe, where the panel CSP blocks the inline language script. */
+function st_preview_show(string $html): string
+{
+    $html = str_replace(' lang-wait', '', $html);
+    $html = preg_replace('/<style>html\.lang-wait body\{visibility:hidden\}<\/style>\s*/', '', $html) ?? $html;
+    $html = preg_replace('/<script>\s*\(function \(\) \{\s*var lang = \'en\';.*?st-pref.*?<\/script>\s*/s', '', $html) ?? $html;
+    return $html;
+}
+
 function st_cms_preview(string $id): string
 {
     if (!preg_match('/^[A-Za-z0-9_-]+$/', $id)) throw new RuntimeException('Nieprawidłowa strona.');
@@ -1314,7 +1323,7 @@ function st_cms_preview(string $id): string
     }, $html) ?? $html;
     $p = strpos($html, '<html');
     if ($p !== false) $html = substr_replace($html, '<html data-st-i18n="off" data-cms-edit="1"', $p, strlen('<html'));
-    return $html;
+    return st_preview_show($html);
 }
 
 function st_cms_ext_mime(string $url): string
