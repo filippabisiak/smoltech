@@ -338,13 +338,20 @@ function st_rate_hit(string $bucket, int $max, int $window): bool
     return $blocked;
 }
 
+function st_totp_skipped(): bool
+{
+    $flag = strtolower(trim((string) (st_env()['ADMIN_SKIP_TOTP'] ?? '')));
+    return in_array($flag, ['1', 'true', 'yes', 'on'], true);
+}
+
 function st_require_configured(): void
 {
     $env = st_env();
+    $totpOk = st_totp_skipped() || (($env['ADMIN_TOTP_SECRET'] ?? '') !== '');
     if (
         ($env['ADMIN_USER'] ?? '') === ''
         || ($env['ADMIN_PASS_HASH'] ?? '') === ''
-        || ($env['ADMIN_TOTP_SECRET'] ?? '') === ''
+        || !$totpOk
     ) {
         st_json(['ok' => false, 'error' => 'Panel nie jest skonfigurowany.'], 503);
     }

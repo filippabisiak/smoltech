@@ -72,10 +72,29 @@ if ($action === 'login') {
     }
     session_regenerate_id(true);
     st_session_reset_auth();
-    $_SESSION['pending'] = true;
-    $_SESSION['pending_exp'] = time() + 180;
     $_SESSION['bind'] = st_bind_key();
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    if (st_totp_skipped()) {
+        $_SESSION['auth'] = true;
+        $_SESSION['seen'] = time();
+        $list = st_inbox_public_list();
+        $unread = 0;
+        foreach ($list as $row) {
+            if (empty($row['read'])) {
+                $unread++;
+            }
+        }
+        st_json([
+            'ok' => true,
+            'step' => 'app',
+            'csrf' => st_csrf_token(),
+            'items' => $list,
+            'unread' => $unread,
+            'total' => count($list),
+        ]);
+    }
+    $_SESSION['pending'] = true;
+    $_SESSION['pending_exp'] = time() + 180;
     st_json(['ok' => true, 'step' => 'totp', 'csrf' => st_csrf_token()]);
 }
 
