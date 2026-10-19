@@ -1,8 +1,8 @@
-/* SMOLTECH UA — client-side Ukrainian → English. Default remains uk. */
+/* SMOLTECH — client-side language switch. English is the default. */
 (function () {
   'use strict';
 
-  var STORE = 'st-lang';
+  var STORE = 'st-pref';
   var CYR = /[А-Яа-яЁёІіЇїЄєҐґ]/;
   var SKIP = /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|CODE|KBD)$/;
   var ATTRS = ['aria-label', 'alt', 'title', 'placeholder', 'data-title'];
@@ -2804,9 +2804,9 @@
     if (q) return q[1];
     try {
       var s = localStorage.getItem(STORE);
-      if (s === 'en' || s === 'ru') return s;
+      if (s === 'en' || s === 'uk' || s === 'ru') return s;
     } catch (e) { /* ignore */ }
-    return 'uk';
+    return 'en';
   }
 
   function storeAttr(el, attr) {
@@ -3392,6 +3392,7 @@
       applyMaps(lang);
     }
     applyMeta(lang);
+    document.documentElement.classList.remove('lang-wait');
     try { localStorage.setItem(STORE, lang); } catch (e) { /* ignore */ }
     document.dispatchEvent(new CustomEvent('st:lang', { detail: lang }));
   }

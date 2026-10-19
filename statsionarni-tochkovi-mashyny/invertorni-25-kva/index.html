@@ -1,6 +1,26 @@
 <!DOCTYPE html>
-<html lang="uk-UA" class="no-js" prefix="og: https://ogp.me/ns#">
+<html lang="en" class="no-js lang-wait" prefix="og: https://ogp.me/ns#">
 <head>
+<script>
+(function () {
+  var lang = 'en';
+  try {
+    var q = /(?:^|[?&])lang=(en|uk|ru)(?:&|$)/.exec(location.search);
+    if (q) lang = q[1];
+    else {
+      var s = localStorage.getItem('st-pref');
+      if (s === 'en' || s === 'uk' || s === 'ru') lang = s;
+    }
+  } catch (e) {}
+  var root = document.documentElement;
+  root.setAttribute('data-lang', lang);
+  root.setAttribute('lang', lang === 'en' ? 'en' : (lang === 'ru' ? 'ru' : 'uk-UA'));
+  if (lang === 'uk') root.classList.remove('lang-wait');
+  else root.classList.add('lang-wait');
+  setTimeout(function () { root.classList.remove('lang-wait'); }, 4000);
+})();
+</script>
+<style>html.lang-wait body{visibility:hidden}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Інверторні стаціонарні точкові машини 25 кВА | SMOLTECH</title>
@@ -56,10 +76,10 @@
     </ul>
     <div class="topbar__end">
       <div class="lang" role="group" aria-label="Мова сайту">
-        <button type="button" class="lang__btn is-active" data-lang="uk" aria-pressed="true" title="Українська" aria-label="Українська">
+        <button type="button" class="lang__btn" data-lang="uk" aria-pressed="false" title="Українська" aria-label="Українська">
           <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="24" height="12" fill="#005BBB"/><rect y="12" width="24" height="12" fill="#FFD500"/></svg>
         </button>
-        <button type="button" class="lang__btn" data-lang="en" aria-pressed="false" title="English" aria-label="English">
+        <button type="button" class="lang__btn is-active" data-lang="en" aria-pressed="true" title="English" aria-label="English">
           <svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="60" height="30" fill="#012169"/><path d="M0 0l60 30M60 0L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30M60 0L0 30" stroke="#C8102E" stroke-width="2"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg>
         </button>
         <button type="button" class="lang__btn" data-lang="ru" aria-pressed="false" title="Русский" aria-label="Русский">
@@ -140,10 +160,10 @@
 
     <div class="hdr__cta">
       <div class="lang lang--hdr" role="group" aria-label="Мова сайту">
-        <button type="button" class="lang__btn is-active" data-lang="uk" aria-pressed="true" title="Українська" aria-label="Українська">
+        <button type="button" class="lang__btn" data-lang="uk" aria-pressed="false" title="Українська" aria-label="Українська">
           <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="24" height="12" fill="#005BBB"/><rect y="12" width="24" height="12" fill="#FFD500"/></svg>
         </button>
-        <button type="button" class="lang__btn" data-lang="en" aria-pressed="false" title="English" aria-label="English">
+        <button type="button" class="lang__btn is-active" data-lang="en" aria-pressed="true" title="English" aria-label="English">
           <svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="60" height="30" fill="#012169"/><path d="M0 0l60 30M60 0L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30M60 0L0 30" stroke="#C8102E" stroke-width="2"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg>
         </button>
         <button type="button" class="lang__btn" data-lang="ru" aria-pressed="false" title="Русский" aria-label="Русский">
@@ -165,10 +185,10 @@
     </a>
     <div class="drawer__tools">
       <div class="lang lang--drawer" role="group" aria-label="Мова сайту">
-        <button type="button" class="lang__btn is-active" data-lang="uk" aria-pressed="true" title="Українська" aria-label="Українська">
+        <button type="button" class="lang__btn" data-lang="uk" aria-pressed="false" title="Українська" aria-label="Українська">
           <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="24" height="12" fill="#005BBB"/><rect y="12" width="24" height="12" fill="#FFD500"/></svg>
         </button>
-        <button type="button" class="lang__btn" data-lang="en" aria-pressed="false" title="English" aria-label="English">
+        <button type="button" class="lang__btn is-active" data-lang="en" aria-pressed="true" title="English" aria-label="English">
           <svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="60" height="30" fill="#012169"/><path d="M0 0l60 30M60 0L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30M60 0L0 30" stroke="#C8102E" stroke-width="2"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg>
         </button>
         <button type="button" class="lang__btn" data-lang="ru" aria-pressed="false" title="Русский" aria-label="Русский">
@@ -558,7 +578,7 @@
 </button>
 
 <script src="/assets/js/nakladka-jezyk.js?v=1792080672" defer></script>
-<script src="/assets/js/tlumaczenia.js?v=20261015c" defer></script>
+<script src="/assets/js/tlumaczenia.js?v=20261019en" defer></script>
 <script src="/assets/js/strona.js?v=1792080672" defer></script>
 </body>
 </html>
