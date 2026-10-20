@@ -174,7 +174,7 @@ body {
 }
 
 /* ---------- app chrome ---------- */
-.app { min-height: 100dvh; display: flex; flex-direction: column; background: var(--paper-2); }
+.app { min-height: 100dvh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; background: var(--paper-2); }
 .top {
   display: flex; align-items: center; justify-content: space-between; gap: .8rem;
   height: var(--top); padding: 0 1.15rem;
@@ -306,13 +306,14 @@ body {
   min-width: 1.25rem; padding: .08rem .32rem; border-radius: 999px;
   background: var(--brand); color: #fff; font-size: .68rem; text-align: center;
 }
-.work { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.view { flex: 1; overflow: auto; padding: 1.65rem 1.6rem 2.6rem; }
+.work { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.view { flex: 1; min-height: 0; overflow: auto; padding: 1.65rem 1.6rem 2.6rem; }
 #view-dash, #view-pages, #view-videos, #view-settings, #view-media {
   width: 100%; max-width: 1040px; margin: 0 auto;
 }
 #view-inbox { padding: 0; display: flex; flex-direction: column; }
-#view-editor { padding: 0; overflow: hidden; }
+#view-editor { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+#view-editor > .stb { flex: 1 1 auto; min-height: 0; height: auto; }
 
 .cms-head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-end; margin-bottom: 1.4rem; flex-wrap: wrap; }
 .cms-head h1 {

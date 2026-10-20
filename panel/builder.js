@@ -1222,8 +1222,8 @@
       style.textContent = [
         '.stb-on{outline:2px solid #d10a11;outline-offset:3px}',
         'html,body{scroll-behavior:auto!important;overflow-anchor:none!important}',
-        '.stb-ink-light{background-color:#1a1a1a!important;caret-color:#fff!important}',
-        '.stb-ink-dark{background-color:#fff!important;caret-color:#161616!important}',
+        '.stb-ink-light{caret-color:#fff!important}',
+        '.stb-ink-dark{caret-color:#161616!important}',
         '.stb-ink-light:not([style*="color"]){color:#fff!important;-webkit-text-fill-color:#fff!important}',
         '.stb-ink-dark:not([style*="color"]){color:#161616!important;-webkit-text-fill-color:#161616!important}',
         '.stb-ink-light[style*="color"],.stb-ink-dark[style*="color"]{-webkit-text-fill-color:currentColor!important;background-image:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important}',
@@ -3783,6 +3783,17 @@
         say(color ? 'That title could not be coloured.' : 'That colour could not be cleared.', 'err');
         return;
       }
+      try {
+        var sel = doc.getSelection();
+        if (sel) {
+          var end = doc.createRange();
+          end.selectNodeContents(hostEl);
+          end.collapse(false);
+          sel.removeAllRanges();
+          sel.addRange(end);
+        }
+        heldRange = null;
+      } catch (err2) { /* the colour is already on the title */ }
       say(colorMessage(!!color));
     }
 
