@@ -63,7 +63,7 @@
     var tw = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {
       acceptNode: function (node) {
         var p = node.parentElement;
-        if (!p || p.closest('script, style, noscript')) return NodeFilter.FILTER_REJECT;
+        if (!p || p.closest('script, style, noscript, .stb-drag, .stb-addone, .stb-slotlabel')) return NodeFilter.FILTER_REJECT;
         if (!node.nodeValue || !String(node.nodeValue).trim()) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
@@ -165,12 +165,22 @@
         '<div class="stb__tools" role="toolbar" aria-label="Editor tools">' +
           '<div class="stb__grp" data-grp="text">' +
             '<span class="stb__grp-h">Text</span>' +
-            '<button type="button" data-act="bold" title="Bold"><b>B</b></button>' +
-            '<button type="button" data-act="italic" title="Italic"><i>I</i></button>' +
-            '<button type="button" data-act="under" title="Underline"><u>U</u></button>' +
-            '<label class="stb__mini" title="Text size">Size <select id="stb-size" title="Caption, body text, subtitle, or title"><option value="">Size</option><option value="0.8125rem">Caption</option><option value="1.125rem">Body text</option><option value="1.28rem">Subtitle</option><option value="2.35rem">Title</option></select></label>' +
+            '<p class="stb__grp-p">Click a title or a paragraph. A colour applies to the whole title, unless you have selected specific words.</p>' +
+            '<div class="stb__row">' +
+              '<button type="button" data-act="bold" title="Bold"><b>B</b></button>' +
+              '<button type="button" data-act="italic" title="Italic"><i>I</i></button>' +
+              '<button type="button" data-act="under" title="Underline"><u>U</u></button>' +
+              '<button type="button" data-act="link" title="Link the selected words">Link</button>' +
+            '</div>' +
+            '<div class="stb__sub">' +
+              '<span class="stb__sub-h">Size</span>' +
+              '<div class="stb__row">' +
+                '<label class="stb__mini" title="Text size">Size <select id="stb-size" title="Caption, body text, subtitle, or title"><option value="">Size</option><option value="0.8125rem">Caption</option><option value="1.125rem">Body text</option><option value="1.28rem">Subtitle</option><option value="2.35rem">Title</option></select></label>' +
+                '<button type="button" data-act="nosize" title="Use the size this text already has on the page">Clear size</button>' +
+              '</div>' +
+            '</div>' +
             '<div class="stb__color" id="stb-color" role="group" aria-label="Text color">' +
-              '<span class="stb__color-lab">Color</span>' +
+              '<span class="stb__color-lab">Colour</span>' +
               '<button type="button" class="stb__swatch" data-color="#161616" style="background:#161616" title="#161616"></button>' +
               '<button type="button" class="stb__swatch" data-color="#5c5c5c" style="background:#5c5c5c" title="#5c5c5c"></button>' +
               '<button type="button" class="stb__swatch" data-color="#d10a11" style="background:#d10a11" title="Brand #d10a11"></button>' +
@@ -178,53 +188,79 @@
               '<button type="button" class="stb__swatch" data-color="#0f766e" style="background:#0f766e" title="#0f766e"></button>' +
               '<button type="button" class="stb__swatch" data-color="#1d4ed8" style="background:#1d4ed8" title="#1d4ed8"></button>' +
               '<button type="button" class="stb__swatch" data-color="#7c3aed" style="background:#7c3aed" title="#7c3aed"></button>' +
-              '<label class="stb__hex">Hex <input type="text" id="stb-hex" value="#d10a11" maxlength="7" spellcheck="false" autocomplete="off" title="Custom colour #rrggbb"></label>' +
-              '<button type="button" data-act="applycolor" title="Apply the hex colour">Apply</button>' +
+              '<div class="stb__row">' +
+                '<label class="stb__hex">Hex <input type="text" id="stb-hex" value="#d10a11" maxlength="7" spellcheck="false" autocomplete="off" title="Custom colour #rrggbb"></label>' +
+                '<button type="button" data-act="applycolor" title="Apply the hex colour">Apply</button>' +
+              '</div>' +
+              '<button type="button" class="stb__wide" data-act="clearcolor" title="Default colour">Default colour</button>' +
             '</div>' +
-            '<button type="button" data-act="clearcolor" title="Default colour">Default colour</button>' +
-            '<button type="button" data-act="nosize" title="Remove size">Remove size</button>' +
-            '<button type="button" data-act="left" title="Align left">Left</button>' +
-            '<button type="button" data-act="center" title="Align center">Center</button>' +
-            '<button type="button" data-act="right" title="Align right">Right</button>' +
-            '<button type="button" data-act="outdent" title="← Move left">← Move left</button>' +
-            '<button type="button" data-act="indent" title="Move right →">Move right →</button>' +
-            '<button type="button" data-act="item" title="Turn the selected text into a bullet, or remove the bullet">Bullets</button>' +
-            '<button type="button" data-act="link" title="Link the selected words">Link</button>' +
+          '</div>' +
+          '<div class="stb__grp" data-grp="align">' +
+            '<span class="stb__grp-h">Alignment</span>' +
+            '<div class="stb__row">' +
+              '<button type="button" data-act="left" title="Align left">Left</button>' +
+              '<button type="button" data-act="center" title="Align center">Center</button>' +
+              '<button type="button" data-act="right" title="Align right">Right</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="stb__grp" data-grp="indent">' +
+            '<span class="stb__grp-h">Indent</span>' +
+            '<p class="stb__grp-p">Nudge the paragraph in from the left edge, or back out.</p>' +
+            '<div class="stb__row">' +
+              '<button type="button" data-act="outdent" title="Move left">Move left</button>' +
+              '<button type="button" data-act="indent" title="Move right">Move right</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="stb__grp" data-grp="list">' +
+            '<span class="stb__grp-h">List</span>' +
+            '<p class="stb__grp-p">Turns the paragraph you clicked into a bullet. Click that bullet again to turn it back into a paragraph.</p>' +
+            '<button type="button" class="stb__wide" data-act="item" title="Turn the selected text into a bullet, or remove the bullet">Bullet list</button>' +
           '</div>' +
           '<div class="stb__grp" data-grp="media">' +
             '<span class="stb__grp-h">Photo</span>' +
-            '<button type="button" data-act="img" title="Change the selected photo" disabled>Change</button>' +
-            '<button type="button" data-act="move" id="stb-move" title="Move the photo inside its frame" aria-pressed="false">Move</button>' +
-            '<button type="button" data-act="resetpos" title="Put the photo back in the middle of its frame" disabled>Reset</button>' +
-            '<button type="button" data-act="alt" title="Description (alt)" disabled>Description (alt)</button>' +
-            '<button type="button" data-act="noimg" title="Remove the selected photo" disabled>Remove</button>' +
+            '<p class="stb__grp-p">Click a photo, or the large background behind a title. These buttons stay off until one is selected.</p>' +
+            '<div class="stb__row">' +
+              '<button type="button" data-act="img" title="Choose a new picture for the selected photo or background" disabled>Replace</button>' +
+              '<button type="button" data-act="move" id="stb-move" title="Drag the photo inside its frame" aria-pressed="false">Move</button>' +
+            '</div>' +
+            '<div class="stb__row">' +
+              '<button type="button" data-act="resetpos" title="Put the photo back in the middle of its frame" disabled>Reset position</button>' +
+              '<button type="button" data-act="alt" title="Description (alt)" disabled>Description</button>' +
+            '</div>' +
+            '<button type="button" class="stb__wide" data-act="noimg" title="Remove the selected photo" disabled>Remove photo</button>' +
           '</div>' +
           '<div class="stb__grp stb__grp--layout" data-grp="layout">' +
-            '<span class="stb__grp-h">Layout</span>' +
-            '<button type="button" data-act="add" title="Insert a ready-made section">Add block</button>' +
-            '<button type="button" data-act="up" title="Move the selected card or section up">Up</button>' +
-            '<button type="button" data-act="down" title="Move the selected card or section down">Down</button>' +
-            '<button type="button" data-act="dup" title="Duplicate the selected card or section">Duplicate</button>' +
-            '<button type="button" data-act="del" title="Delete the selected text, card, or whole section">Delete</button>' +
+            '<span class="stb__grp-h">Blocks</span>' +
+            '<p class="stb__grp-p">Add a section, tab, or subtitle, then drag the handle on it to the place you want.</p>' +
+            '<button type="button" class="stb__wide" data-act="add" title="Insert a ready-made section">Add block</button>' +
+            '<div class="stb__row">' +
+              '<button type="button" data-act="up" title="Move the selected card or section up">Up</button>' +
+              '<button type="button" data-act="down" title="Move the selected card or section down">Down</button>' +
+            '</div>' +
+            '<div class="stb__row">' +
+              '<button type="button" data-act="dup" title="Duplicate the selected card or section">Duplicate</button>' +
+              '<button type="button" data-act="del" title="Delete the selected text, card, or whole section">Delete</button>' +
+            '</div>' +
           '</div>' +
           '<div class="stb__grp" data-grp="page">' +
             '<span class="stb__grp-h">Page</span>' +
-            '<button type="button" data-act="undo" id="stb-undo" disabled title="Undo (Ctrl+Z)">Undo</button>' +
-            '<button type="button" data-act="redo" id="stb-redo" disabled title="Redo (Ctrl+Y or Ctrl+Shift+Z)">Redo</button>' +
-            '<button type="button" id="stb-add-type" hidden title="Add a machine type: a card on this page and a new subpage">Add machine type</button>' +
-            '<button type="button" id="stb-add-mach" hidden title="Add a product card on this page">Add product</button>' +
-            '<button type="button" id="stb-add-var" hidden title="Add a variant column to the specification table">Add variant</button>' +
-            '<button type="button" id="stb-add-one" hidden title="Add another card, video, photo, partner, question or list row">Add another</button>' +
-            '<button type="button" id="stb-pages" title="Add a page or change where a page sits in the menu">Add page</button>' +
-            '<button type="button" id="stb-delpage" hidden title="Delete this page">Delete page</button>' +
-            '<button type="button" id="stb-meta-btn" title="Google title and description">Page settings</button>' +
-            '<button type="button" data-act="desk" class="is-on" title="Desktop width">Desktop</button>' +
-            '<button type="button" data-act="tab" title="Tablet width">Tablet</button>' +
-            '<button type="button" data-act="phone" title="Phone width">Phone</button>' +
-            '<a class="btn btn-ghost btn-sm" id="stb-live" target="_blank" rel="noopener" hidden title="Open the public page">Preview</a>' +
-            '<span class="stb__dirty" id="stb-dirty" hidden>Unsaved changes</span>' +
-            '<button type="button" class="btn btn-sm" id="stb-retry" title="Translate every English sentence that is still waiting">Retry translations</button>' +
-            '<button type="button" class="btn btn-sm" id="stb-save" title="Publish this page to the site">Save</button>' +
+            '<div class="stb__row">' +
+              '<button type="button" data-act="undo" id="stb-undo" disabled title="Undo (Ctrl+Z)">Undo</button>' +
+              '<button type="button" data-act="redo" id="stb-redo" disabled title="Redo (Ctrl+Y or Ctrl+Shift+Z)">Redo</button>' +
+            '</div>' +
+            '<div class="stb__row">' +
+              '<button type="button" data-act="desk" class="is-on" title="Desktop width">Desktop</button>' +
+              '<button type="button" data-act="tab" title="Tablet width">Tablet</button>' +
+              '<button type="button" data-act="phone" title="Phone width">Phone</button>' +
+            '</div>' +
+            '<button type="button" class="stb__wide" id="stb-add-type" hidden title="Add a machine type: a card on this page and a new subpage">Add machine type</button>' +
+            '<button type="button" class="stb__wide" id="stb-add-mach" hidden title="Add a product card on this page">Add product</button>' +
+            '<button type="button" class="stb__wide" id="stb-add-var" hidden title="Add a variant column to the specification table">Add variant</button>' +
+            '<button type="button" class="stb__wide" id="stb-add-one" hidden title="Add another card, video, photo, partner, question or list row">Add another</button>' +
+            '<button type="button" class="stb__wide" id="stb-pages" title="Add a page or change where a page sits in the menu">Add page</button>' +
+            '<button type="button" class="stb__wide" id="stb-delpage" hidden title="Delete this page">Delete page</button>' +
+            '<button type="button" class="stb__wide" id="stb-meta-btn" title="Google title and description">Page settings</button>' +
+            '<button type="button" class="stb__wide" id="stb-retry" title="Translate every English sentence that is still waiting">Retry translations</button>' +
           '</div>' +
           '<label class="stb__mini" id="stb-ph-wrap" hidden>Field hint <input type="text" id="stb-ph" title="Placeholder shown in the empty field"></label>' +
         '</div>' +
@@ -235,19 +271,31 @@
           '<p class="stb__meta-note">These fields follow the language you are editing. English is the source: saving an English title translates it into Ukrainian and Russian. A Ukrainian or Russian edit stays until that English text changes.</p>' +
         '</div>' +
         '<p class="stb__banner" id="stb-banner" hidden></p>' +
-        '<p class="stb__note" id="stb-note">Click text to edit it. Double-click a menu or card link to open that page. Click a photo, then Change, to replace it.</p>' +
+        '<p class="stb__note" id="stb-note">Click a title to edit it. A colour applies to that whole title. Click a photo or background, then Replace. Drag the handle to move a block.</p>' +
         '<div class="stb__pick" id="stb-pick" hidden></div>' +
         '<div class="stb__stage" id="stb-stage"><iframe class="stb__frame" id="stb-frame" title="Page editor"></iframe></div>' +
         '<p class="stb__status" id="stb-status"></p>' +
+        '<div class="stb__foot">' +
+          '<a class="stb__preview" id="stb-live" target="_blank" rel="noopener" hidden title="Open the public page">Preview</a>' +
+          '<span class="stb__dirty" id="stb-dirty" hidden>Unsaved changes</span>' +
+          '<button type="button" id="stb-save" title="Publish this page to the site">Save</button>' +
+        '</div>' +
       '</div>';
 
     (function () {
       var root = host.querySelector('.stb');
       var stageEl = host.querySelector('#stb-stage');
+      var foot = root.querySelector('.stb__foot');
       var side = document.createElement('aside');
       side.className = 'stb__side';
       side.id = 'stb-side';
-      Array.prototype.slice.call(root.children).forEach(function (c) { if (c !== stageEl) side.appendChild(c); });
+      var scroll = document.createElement('div');
+      scroll.className = 'stb__side-scroll';
+      Array.prototype.slice.call(root.children).forEach(function (c) {
+        if (c !== stageEl && c !== foot) scroll.appendChild(c);
+      });
+      side.appendChild(scroll);
+      if (foot) side.appendChild(foot);
       var tog = document.createElement('button');
       tog.type = 'button';
       tog.className = 'stb__side-tog';
@@ -269,7 +317,7 @@
       tog.addEventListener('click', function () { setShut(!root.classList.contains('is-side-off')); });
     })();
 
-    var sideBox = host.querySelector('#stb-side');
+    var sideBox = host.querySelector('.stb__side-scroll') || host.querySelector('#stb-side');
     var sidePin = { y: 0, lock: false, timer: null };
     function armSidePin() {
       if (!sideBox) return;
@@ -453,8 +501,9 @@
         el.removeAttribute('spellcheck');
         el.removeAttribute('lang');
       });
-      clone.querySelectorAll('.stb-ink-light, .stb-ink-dark, .stb-on, .stb-dragging').forEach(function (el) {
-        el.classList.remove('stb-ink-light', 'stb-ink-dark', 'stb-on', 'stb-dragging');
+      clone.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel').forEach(function (el) { el.remove(); });
+      clone.querySelectorAll('.stb-ink-light, .stb-ink-dark, .stb-on, .stb-dragging, .stb-draghost').forEach(function (el) {
+        el.classList.remove('stb-ink-light', 'stb-ink-dark', 'stb-on', 'stb-dragging', 'stb-draghost');
       });
       return { html: clone.innerHTML, texts: texts, ph: ph, hosts: hosts, sel: selectionSnap() };
     }
@@ -1173,8 +1222,12 @@
       style.textContent = [
         '.stb-on{outline:2px solid #d10a11;outline-offset:3px}',
         'html,body{scroll-behavior:auto!important;overflow-anchor:none!important}',
-        '.stb-ink-light{background-color:#1a1a1a!important;color:#fff!important;-webkit-text-fill-color:#fff!important;caret-color:#fff!important}',
-        '.stb-ink-dark{background-color:#fff!important;color:#161616!important;-webkit-text-fill-color:#161616!important;caret-color:#161616!important}',
+        '.stb-ink-light{background-color:#1a1a1a!important;caret-color:#fff!important}',
+        '.stb-ink-dark{background-color:#fff!important;caret-color:#161616!important}',
+        '.stb-ink-light:not([style*="color"]){color:#fff!important;-webkit-text-fill-color:#fff!important}',
+        '.stb-ink-dark:not([style*="color"]){color:#161616!important;-webkit-text-fill-color:#161616!important}',
+        '.stb-ink-light[style*="color"],.stb-ink-dark[style*="color"]{-webkit-text-fill-color:currentColor!important;background-image:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important}',
+        'h1[style*="color"],h2[style*="color"],h3[style*="color"],h4[style*="color"],h1 [style*="color"],h2 [style*="color"],h3 [style*="color"],h4 [style*="color"]{-webkit-text-fill-color:currentColor!important;background-image:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important}',
         /* A coloured letter stays in the word. It does not get its own chip or lose its colour. */
         '.stb-ink-light [style*="color"],.stb-ink-dark [style*="color"],.stb-ink-light [data-stb-paint],.stb-ink-dark [data-stb-paint]{background-color:transparent!important;-webkit-text-fill-color:currentColor!important}',
         '[contenteditable="true"] span[style*="color"],[contenteditable="true"] span[style*="font-size"]{display:inline!important;margin:0!important;padding:0!important;letter-spacing:inherit;word-spacing:inherit;white-space:inherit;vertical-align:baseline}',
@@ -1190,11 +1243,20 @@
         '[data-st-builder] .nav__item.is-open>.mega,[data-st-builder] .mega__fly.is-open>.mega--flyout{opacity:1;visibility:visible;transform:none;pointer-events:auto}',
         '[data-st-builder] .drawer.is-open{transform:none}',
         '[data-st-builder] .drawer__sub.is-open{max-height:80rem}',
-        '[data-st-builder] .hero__bg,[data-st-builder] .hero__bg img,[data-st-builder] .hero__shot,[data-st-builder] .hero__shot img{pointer-events:auto!important}',
+        '[data-st-builder] .hero__bg,[data-st-builder] .hero__bg img,[data-st-builder] .hero__shot,[data-st-builder] .hero__shot img,[data-st-builder] .hero__poster,[data-st-builder] .hero__poster img{pointer-events:auto!important}',
+        '.hero--video .hero__video{display:none!important}',
+        '.hero--video .hero__poster{display:block!important;position:absolute;inset:0;z-index:1;opacity:.92}',
+        '.hero--video .hero__poster picture,.hero--video .hero__poster img{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover}',
         '[data-st-builder] .hero__in{position:relative;z-index:2}',
         'html.stb-move .hero__in,html.stb-move .hero::before,html.stb-move .hero__emerge::after,html.stb-move .hero__bg::after,html.stb-move .grid-lines,html.stb-move .spark{pointer-events:none!important}',
         'html.stb-move .hero__bg,html.stb-move .hero__emerge,html.stb-move .hero__shot,html.stb-move figure,html.stb-move .tile__media,html.stb-move .card__media,html.stb-move .hero__bg img,html.stb-move .hero__emerge img,html.stb-move .hero__shot img,html.stb-move figure img,html.stb-move .tile__media img,html.stb-move .card__media img{pointer-events:auto!important;cursor:grab!important}',
         '.stb-addone{display:inline-flex;margin:.4rem 0;padding:.28rem .7rem;border:1px dashed #d10a11;background:#fff;color:#9d1020;font:700 12px/1.2 Inter,system-ui,sans-serif;border-radius:999px;cursor:pointer}',
+        '.stb-draghost{position:relative}',
+        '.stb-drag{position:absolute;z-index:40;top:10px;left:10px;display:inline-flex;align-items:center;gap:.35rem;margin:0;padding:.32rem .7rem;border:1px solid #d10a11;border-radius:999px;background:#fff;color:#9d1020;font:700 12px/1.2 Inter,system-ui,sans-serif;cursor:grab;box-shadow:0 6px 16px rgba(0,0,0,.18);user-select:none}',
+        '.stb-drag--item{left:auto;right:10px}',
+        '.stb-drag::before{content:"";width:.85rem;height:.62rem;background:linear-gradient(#9d1020,#9d1020) 0 0/100% 2px no-repeat,linear-gradient(#9d1020,#9d1020) 0 50%/100% 2px no-repeat,linear-gradient(#9d1020,#9d1020) 0 100%/100% 2px no-repeat}',
+        '.stb-drag:active{cursor:grabbing}',
+        '.stb-drag--beside{position:static;display:flex;width:max-content;max-width:calc(100% - .5rem);margin:.35rem 0}',
         '.stb-slotlabel{display:block;margin:.2rem 0 .4rem;font:600 12px/1.3 Inter,system-ui,sans-serif;color:#8d1018}',
         '.proof__ico,.about-dir__ico{cursor:pointer}',
         '.proof__ico:hover,.about-dir__ico:hover{outline:2px solid #d10a11;outline-offset:3px}',
@@ -1318,6 +1380,7 @@
         if (!node) return;
         if (node.nodeType === 3) { parts.push(node.nodeValue || ''); return; }
         if (node.nodeType !== 1) return;
+        if (node.matches && node.matches('.stb-drag, .stb-addone, .stb-slotlabel, script, style')) return;
         if (node.tagName === 'BR') { parts.push('\n'); return; }
         Array.prototype.forEach.call(node.childNodes, walk);
       }
@@ -1773,7 +1836,12 @@
     function labelOf(el) {
       if (!el) return '';
       var h = el.matches && el.matches('.faq > details') ? el.querySelector('summary') : el.querySelector('h1, h2, h3, .model-strip__name');
-      var t = (h ? h.textContent : el.textContent) || '';
+      var source = h || el;
+      if (!h && el.querySelector && el.querySelector('.stb-drag, .stb-addone, .stb-slotlabel')) {
+        source = el.cloneNode(true);
+        source.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel').forEach(function (n) { n.remove(); });
+      }
+      var t = (source.textContent) || '';
       t = t.replace(/[\u200C\u200D]/g, '').replace(/\s+/g, ' ').trim();
       if (t.length > 72) t = t.slice(0, 72) + '…';
       return t;
@@ -1835,7 +1903,7 @@
     function renderPick() {
       var bar = host.querySelector('#stb-pick');
       if (!bar) return;
-      if (!currentSection) { bar.hidden = true; bar.innerHTML = ''; placeInlineAdd(); return; }
+      if (!currentSection) { bar.hidden = true; bar.innerHTML = ''; placeInlineAdd(); placeDragHandle(); return; }
       bar.hidden = false;
       var sName = labelOf(currentSection) || 'This section';
       var html = '<button type="button" data-pick="section" title="' + esc(sName) + '"' + (level === 'section' ? ' class="is-on"' : '') + '>Section</button>';
@@ -1852,6 +1920,7 @@
       else html += '<span class="stb__pick-note">The whole section is selected.</span>';
       bar.innerHTML = html;
       placeInlineAdd();
+      placeDragHandle();
     }
 
     function clearEdit() {
@@ -1905,7 +1974,10 @@
       } else if (moveMode) {
         note.textContent = 'Move photo is on. Drag a picture inside its frame. Click Move photo again to go back to editing text.';
       } else if (image) {
-        note.textContent = 'Photo selected. Click Move photo, then drag it inside the frame. Replace, reset or remove it from Media.';
+        var bg = image.closest && image.closest('.hero__poster, .hero__bg, .hero__shot, .hero__emerge');
+        note.textContent = bg
+          ? 'Background photo selected. Use Replace to choose a new picture. It shows in place of the video after you save.'
+          : 'Photo selected. Use Replace to choose a new picture, or Move to slide it inside the frame.';
       } else {
         note.textContent = 'Click text to edit it. Double-click a link or a card to open that page. Click a menu category to open its dropdown.';
       }
@@ -2034,7 +2106,7 @@
          clears the card, and the copy then lands on the last repeatable in the
          section — often far below the click. Leave the selection alone so the
          button can insert the copy right after this item. */
-      if (t.closest && t.closest('.stb-addone')) return;
+      if (t.closest && t.closest('.stb-drag, .stb-addone')) return;
       var iconSlot = t.closest && t.closest('.proof__ico, .about-dir__ico');
       if (iconSlot && iconSlot.closest && iconSlot.closest('#main')) {
         e.preventDefault();
@@ -2174,6 +2246,7 @@
     function skipPhoto(img) {
       if (!img || !img.closest) return true;
       if (img.closest('.brand, .lang, .mega__ico, .ftr__social, .topbar, svg')) return true;
+      if (img.closest('.hero__bg, .hero__poster, .hero__shot, .hero__emerge, .tile__media, .card__media, figure')) return false;
       var r = img.getBoundingClientRect();
       return r.width < 64 || r.height < 64;
     }
@@ -2276,6 +2349,7 @@
 
     function onPointerDown(e) {
       if (!e || e.button !== 0) return;
+      if (e.target && e.target.closest && e.target.closest('.stb-drag, .stb-addone')) return;
       var hit = photoFromEvent(e);
       if (!hit) return;
       if (!moveMode && hit.kind !== 'img') return;
@@ -2362,7 +2436,7 @@
       var tw = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
         acceptNode: function (node) {
           var p = node.parentElement;
-          if (!p || p.closest('script, style, noscript')) return NodeFilter.FILTER_REJECT;
+          if (!p || p.closest('script, style, noscript, .stb-drag, .stb-addone, .stb-slotlabel')) return NodeFilter.FILTER_REJECT;
           if (!node.nodeValue || !String(node.nodeValue).trim()) return NodeFilter.FILTER_REJECT;
           return NodeFilter.FILTER_ACCEPT;
         }
@@ -2400,7 +2474,7 @@
       var tw = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
         acceptNode: function (node) {
           var p = node.parentElement;
-          if (!p || p.closest('script, style, noscript')) return NodeFilter.FILTER_REJECT;
+          if (!p || p.closest('script, style, noscript, .stb-drag, .stb-addone, .stb-slotlabel')) return NodeFilter.FILTER_REJECT;
           if (!node.nodeValue || !String(node.nodeValue).trim()) return NodeFilter.FILTER_REJECT;
           return NodeFilter.FILTER_ACCEPT;
         }
@@ -2600,6 +2674,130 @@
         else addAnother(item);
       });
       item.insertAdjacentElement('afterend', b);
+    }
+
+    function dragLabel(node, kind) {
+      if (kind === 'section') return 'Drag section';
+      if (node.matches && node.matches('ul.model-strip > li')) return 'Drag tab';
+      if (node.matches && node.matches('li')) return 'Drag bullet';
+      return 'Drag card';
+    }
+
+    function placeDragHandle() {
+      if (!doc) return;
+      doc.querySelectorAll('.stb-drag').forEach(function (n) { n.remove(); });
+      doc.querySelectorAll('.stb-draghost').forEach(function (n) { n.classList.remove('stb-draghost'); });
+      if (!currentSection || !currentSection.isConnected) return;
+      var section = currentSection.id === 'zapyt' ? null : currentSection;
+      if (section && section.parentElement && section.parentElement.id === 'main') attachDrag(section, 'section');
+      var item = level === 'item' && currentItem && currentItem.isConnected ? currentItem : null;
+      if (item && item.id !== 'zapyt' && !(item.closest && item.closest('#zapyt'))) attachDrag(item, 'item');
+    }
+
+    function besidePhrase(node) {
+      return !!(node && node.matches && node.matches('p, li, h1, h2, h3, h4, h5, h6, td, th, dd, dt, figcaption, summary, blockquote, .proof__n, .proof__l'));
+    }
+
+    function attachDrag(node, kind) {
+      if (!node || !node.parentElement) return;
+      var beside = besidePhrase(node);
+      if (!beside) {
+        var pos = 'static';
+        try { pos = doc.defaultView.getComputedStyle(node).position || 'static'; } catch (err) { pos = 'static'; }
+        if (pos === 'static') node.classList.add('stb-draghost');
+      }
+      var b = doc.createElement('button');
+      b.type = 'button';
+      b.className = 'stb-drag' + (kind === 'item' ? ' stb-drag--item' : '') + (beside ? ' stb-drag--beside' : '');
+      b.setAttribute('data-stb-ui', '1');
+      b.setAttribute('contenteditable', 'false');
+      b.textContent = dragLabel(node, kind);
+      b.title = kind === 'section' ? 'Drag this section up or down the page' : 'Drag this to the place you want';
+      if (beside) node.parentElement.insertBefore(b, node);
+      else node.insertBefore(b, node.firstChild);
+      bindDrag(b, node, kind, beside);
+    }
+
+    function bindDrag(btn, node, kind, beside) {
+      var dragging = false;
+      var moved = false;
+      var snapped = false;
+      var originY = 0;
+      function siblings() {
+        var parent = node.parentElement;
+        if (!parent) return [];
+        return Array.prototype.filter.call(parent.children, function (el) {
+          if (el === node) return false;
+          if (!el.matches) return false;
+          if (el.matches('script, style, .stb-drag, .stb-addone, .stb-slotlabel')) return false;
+          return true;
+        });
+      }
+      function dropAt(y) {
+        var best = null;
+        var bestDist = Infinity;
+        var after = false;
+        siblings().forEach(function (el) {
+          var r = el.getBoundingClientRect();
+          if (!r.height && !r.width) return;
+          var mid = r.top + r.height / 2;
+          var dist = Math.abs(y - mid);
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = el;
+            after = y > mid;
+          }
+        });
+        if (!best) return;
+        var form = doc.getElementById('zapyt');
+        if (after) {
+          if (form && best === form) form.before(node);
+          else best.after(node);
+        } else if (form && best === form) form.before(node);
+        else best.before(node);
+        if (form && node.parentElement === form.parentElement) {
+          var scan = form.nextElementSibling;
+          while (scan) {
+            if (scan === node) { form.before(node); break; }
+            scan = scan.nextElementSibling;
+          }
+        }
+        if (beside && node.parentElement) node.parentElement.insertBefore(btn, node);
+      }
+      btn.addEventListener('pointerdown', function (e) {
+        if (e.button != null && e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        dragging = true;
+        moved = false;
+        snapped = false;
+        originY = e.clientY;
+        try { btn.setPointerCapture(e.pointerId); } catch (err) { /* the handle still receives the move */ }
+      });
+      btn.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        if (!moved && Math.abs(e.clientY - originY) < 4) return;
+        if (!snapped) {
+          snapped = true;
+          beforeChange();
+        }
+        moved = true;
+        e.preventDefault();
+        dropAt(e.clientY);
+      });
+      function finish() {
+        if (!dragging) return;
+        dragging = false;
+        if (!moved) return;
+        if (kind === 'item' && node.matches && node.matches('ul.model-strip > li')) reorderMatrix(matrixRoot(node));
+        if (node.matches && node.matches('a.tile') && node.parentElement) reflowTiles(node.parentElement);
+        if (node.matches && node.matches('article.mach') && node.parentElement) renumberMach(node.parentElement);
+        markDirty(whereOf(node));
+        setSelection(node, kind === 'item' ? 'item' : 'section');
+        say('Moved. Drag the handle again, or Save to publish.');
+      }
+      btn.addEventListener('pointerup', finish);
+      btn.addEventListener('pointercancel', finish);
     }
 
     function requestLang(lang) {
@@ -3259,7 +3457,7 @@
           beforeChange();
           insertSection(tpl.html);
           close();
-          say('Block added. Save to publish it.');
+          say('Block added. Drag the handle on it to the place you want, then Save.');
         });
       });
     }
@@ -3566,7 +3764,26 @@
       var painted = stylePhrase('color', color || '');
       if (painted === 'applied') { say(colorMessage(!!color)); return; }
       if (painted === 'failed') return;
-      say(color ? 'Select the words you want to colour.' : 'Select the words whose colour you want to clear.', 'err');
+      var block = textBlock();
+      var hostEl = block && phraseHost(block);
+      if (!hostEl) {
+        say(color ? 'Click a title or a paragraph first.' : 'Click the text whose colour you want to clear.', 'err');
+        return;
+      }
+      var range = null;
+      try {
+        range = doc.createRange();
+        range.selectNodeContents(hostEl);
+      } catch (err) { range = null; }
+      if (!range || !flat(range.toString())) {
+        say(color ? 'Click a title or a paragraph first.' : 'Click the text whose colour you want to clear.', 'err');
+        return;
+      }
+      if (!applySelectionStyle(range, 'color', color || '')) {
+        say(color ? 'That title could not be coloured.' : 'That colour could not be cleared.', 'err');
+        return;
+      }
+      say(colorMessage(!!color));
     }
 
     function colorMessage(on) {
@@ -4215,7 +4432,7 @@
       var tw = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
         acceptNode: function (node) {
           var p = node.parentElement;
-          if (!p || p.closest('script, style, noscript')) return NodeFilter.FILTER_REJECT;
+          if (!p || p.closest('script, style, noscript, .stb-drag, .stb-addone, .stb-slotlabel')) return NodeFilter.FILTER_REJECT;
           return NodeFilter.FILTER_ACCEPT;
         }
       });
@@ -5380,6 +5597,12 @@
         img.removeAttribute('data-stb-alt-en');
         img.removeAttribute('data-stb-alt-ru');
         img.setAttribute('alt', '');
+        var hero = img.closest && img.closest('.hero');
+        if (hero) {
+          hero.classList.add('hero--still');
+          var video = hero.querySelector('video');
+          if (video) video.setAttribute('poster', url);
+        }
         var slotLabel = img.nextElementSibling;
         if (slotLabel && slotLabel.classList && slotLabel.classList.contains('stb-slotlabel')) slotLabel.remove();
         markDirty(whereOf(img));
@@ -5416,6 +5639,10 @@
 
     function removeImage() {
       if (!image) return;
+      if (image.closest && image.closest('.hero__poster, .hero__bg')) {
+        say('This is the page background. Use Replace to choose another picture.', 'err');
+        return;
+      }
       if (!window.confirm('Remove this photo?')) return;
       beforeChange();
       var img = image;
@@ -5736,10 +5963,10 @@
           STColor.normalize(host);
         });
       }
-      doc.querySelectorAll('.stb-ink-light, .stb-ink-dark, .stb-on, .stb-dragging').forEach(function (el) {
-        el.classList.remove('stb-ink-light', 'stb-ink-dark', 'stb-on', 'stb-dragging');
+      doc.querySelectorAll('.stb-ink-light, .stb-ink-dark, .stb-on, .stb-dragging, .stb-draghost').forEach(function (el) {
+        el.classList.remove('stb-ink-light', 'stb-ink-dark', 'stb-on', 'stb-dragging', 'stb-draghost');
       });
-      doc.querySelectorAll('.stb-addone, .stb-slotlabel').forEach(function (el) { el.remove(); });
+      doc.querySelectorAll('.stb-addone, .stb-slotlabel, .stb-drag').forEach(function (el) { el.remove(); });
       doc.querySelectorAll('.proof__ico, .about-dir__ico').forEach(function (el) {
         if (el.getAttribute('title') === 'Change icon') el.removeAttribute('title');
       });
@@ -6161,7 +6388,7 @@
       var tw = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
         acceptNode: function (node) {
           var p = node.parentElement;
-          if (!p || p.closest('script, style, noscript, svg')) return NodeFilter.FILTER_REJECT;
+          if (!p || p.closest('script, style, noscript, svg, .stb-drag, .stb-addone, .stb-slotlabel')) return NodeFilter.FILTER_REJECT;
           if (!node.nodeValue || !String(node.nodeValue).trim()) return NodeFilter.FILTER_REJECT;
           return NodeFilter.FILTER_ACCEPT;
         }
@@ -6238,6 +6465,10 @@
       });
       var copy = src.cloneNode(true);
       saved.forEach(function (row) { if (row[0].parentNode) row[0].nodeValue = row[1]; });
+      if (copy.querySelectorAll) {
+        copy.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel').forEach(function (n) { n.remove(); });
+        copy.classList.remove('stb-draghost');
+      }
       return copy;
     }
 
@@ -6363,7 +6594,7 @@
       uniquifySlots(copy);
       setSelection(copy);
       markDirty(whereOf(copy));
-      say('Added a placeholder. Edit it, then Save.');
+      say('Added. Drag the handle to place it, then edit and Save.');
     }
 
     function specRoot(from) {

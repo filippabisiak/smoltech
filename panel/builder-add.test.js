@@ -56,7 +56,12 @@ window.confirm = function () { return true; };
   window.eval(fs.readFileSync(path.join(root, 'panel', name), 'utf8'));
 });
 
-function textOf(el) { return (el.textContent || '').replace(/\s+/g, ' ').trim(); }
+function textOf(el) {
+  if (!el) return '';
+  var clone = el.cloneNode(true);
+  if (clone.querySelectorAll) clone.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel').forEach(function (n) { n.remove(); });
+  return (clone.textContent || '').replace(/\s+/g, ' ').trim();
+}
 
 window.STBuilder.open('70-polityka', window.document.getElementById('host'), {
   api: function (payload) {
@@ -124,6 +129,53 @@ waitForItem().then(function (it) {
   var labels = Array.prototype.map.call(size.options, function (opt) { return opt.textContent; });
   assert.deepStrictEqual(labels, ['Size', 'Caption', 'Body text', 'Subtitle', 'Title']);
   assert.deepStrictEqual(Array.prototype.map.call(size.options, function (opt) { return opt.value; }), ['', '0.8125rem', '1.125rem', '1.28rem', '2.35rem']);
+
+  var shell = window.document.getElementById('host');
+  var left = shell.querySelector('[data-act="outdent"]');
+  var right = shell.querySelector('[data-act="indent"]');
+  assert.strictEqual(left.parentElement, right.parentElement, 'move left and move right share a row');
+  assert.ok(left.parentElement.classList.contains('stb__row'));
+  var listGrp = shell.querySelector('[data-grp="list"]');
+  assert.ok(/bullet/i.test(listGrp.textContent), 'the list section explains the bullet button');
+  assert.strictEqual(shell.querySelector('[data-act="item"]').textContent, 'Bullet list');
+  assert.ok(shell.querySelector('#stb-live').closest('.stb__foot'), 'preview sits in the footer');
+  assert.ok(shell.querySelector('#stb-save').closest('.stb__foot'), 'save sits in the footer');
+  assert.ok(shell.querySelector('[data-grp="layout"]').compareDocumentPosition(shell.querySelector('#stb-color')) & window.Node.DOCUMENT_POSITION_PRECEDING);
+
+  var h2 = doc.querySelector('h2');
+  h2.click();
+  var swatch = shell.querySelector('.stb__swatch[data-color="#d10a11"]');
+  swatch.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  swatch.click();
+  var painted = h2.querySelector('[style*="color"]');
+  assert.ok(painted, 'a colour swatch colours the title without a word selection');
+  assert.ok(/d10a11/i.test(painted.getAttribute('style') || ''), 'the title uses the swatch colour');
+
+  var bullet = doc.getElementById('top').querySelectorAll(':scope > li');
+  var last = bullet[bullet.length - 1];
+  last.click();
+  var handle = last.previousElementSibling;
+  assert.ok(handle && handle.classList.contains('stb-drag'), 'a selected bullet has a drag handle');
+  assert.strictEqual(handle.textContent, 'Drag bullet');
+  var view = doc.defaultView;
+  view.HTMLElement.prototype.getBoundingClientRect = function () {
+    var parent = this.parentElement;
+    var kids = parent ? Array.prototype.filter.call(parent.children, function (el) {
+      return el.matches && el.matches('li');
+    }) : [];
+    var i = kids.indexOf(this);
+    if (i < 0) i = 0;
+    return { top: i * 40, bottom: i * 40 + 30, left: 0, right: 200, width: 200, height: 30, x: 0, y: i * 40, toJSON: function () { return {}; } };
+  };
+  function point(type, y) {
+    handle.dispatchEvent(new view.MouseEvent(type, { bubbles: true, cancelable: true, clientY: y, button: 0 }));
+  }
+  point('pointerdown', 140);
+  point('pointermove', 8);
+  point('pointerup', 8);
+  var moved = doc.getElementById('top').querySelectorAll(':scope > li');
+  assert.strictEqual(moved[0], last, 'dragging the handle moves the bullet to the top of its list');
+  assert.ok(!doc.querySelector('.stb-drag') || doc.querySelector('.stb-drag').textContent.indexOf('Drag') === 0, 'the handle stays an editor control');
   console.log('builder-add.test.js ok');
 }).catch(function (err) {
   console.error(err);

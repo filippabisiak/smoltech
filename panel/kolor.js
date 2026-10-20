@@ -50,7 +50,16 @@
     var out = [];
     if (!root) return out;
     var doc = root.ownerDocument;
-    var tw = doc.createTreeWalker(root, 4, null);
+    var tw = doc.createTreeWalker(root, 4, {
+      acceptNode: function (node) {
+        var p = node.parentNode;
+        while (p && p !== root) {
+          if (p.nodeType === 1 && p.classList && (p.classList.contains('stb-drag') || p.classList.contains('stb-addone') || p.classList.contains('stb-slotlabel'))) return 2;
+          p = p.parentNode;
+        }
+        return 1;
+      }
+    });
     var n = tw.nextNode();
     while (n) {
       out.push(n);

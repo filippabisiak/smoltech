@@ -81,6 +81,7 @@ function st_builder_clean(string $html): string
     }
     $html = st_builder_restore_nav($html);
     $html = preg_replace('/<style\b[^>]*data-stb-ui[^>]*>.*?<\/style>/is', '', $html) ?? $html;
+    $html = preg_replace('/<button\b[^>]*\bclass="[^"]*\bstb-drag\b[^"]*"[^>]*>.*?<\/button>/is', '', $html) ?? $html;
     $html = preg_replace('/<foreignObject\b[^>]*>.*?<\/foreignObject>/is', '', $html) ?? $html;
     $html = preg_replace_callback('/<script\b([^>]*)>(.*?)<\/script>/is', static function (array $m): string {
         if (preg_match('/type\s*=\s*["\']application\/ld\+json["\']/i', $m[1])) return $m[0];
@@ -112,7 +113,7 @@ function st_builder_clean(string $html): string
     $html = preg_replace_callback("/\s(href|src|action|poster)\s*=\s*'([^']*)'/i", $urlCb, $html) ?? $html;
     $html = st_builder_strip_filled_slots($html);
     $html = preg_replace_callback('/\sclass\s*=\s*"([^"]*)"/i', static function (array $m): string {
-        $cls = preg_replace('/\b(?:stb-ink-light|stb-ink-dark|stb-on|cms-editing|cms-changed|cms-hover|cms-new-card)\b/', '', $m[1]) ?? $m[1];
+        $cls = preg_replace('/\b(?:stb-ink-light|stb-ink-dark|stb-on|stb-draghost|cms-editing|cms-changed|cms-hover|cms-new-card)\b/', '', $m[1]) ?? $m[1];
         $cls = trim((string) preg_replace('/\s+/', ' ', $cls));
         return $cls === '' ? '' : ' class="' . $cls . '"';
     }, $html) ?? $html;
