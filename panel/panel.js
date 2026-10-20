@@ -901,10 +901,10 @@
   var MULTILINE_KINDS = ['p', 'hero__sub', 'lead', 'li', 'summary', 'label', 'cell'];
   var TEXT_ROLES = [
     { v: '', l: 'Domyślna (jak na stronie)' },
-    { v: 'head', l: 'Nagłówek' },
-    { v: 'sub', l: 'Podnagłówek' },
-    { v: 'body', l: 'Treść' },
-    { v: 'small', l: 'Treść mała' }
+    { v: 'head', l: 'Tytuł' },
+    { v: 'sub', l: 'Podtytuł' },
+    { v: 'body', l: 'Treść główna' },
+    { v: 'small', l: 'Podpis' }
   ];
   var TEXT_COLORS = [
     { v: '#161616', l: 'Czerń' },
@@ -1212,7 +1212,7 @@
           '<form class="vis__side" id="form-page">' + fmtCard() +
             '<div class="ed-card vis__help"><h2>' + esc(t('Jak edytować')) + '</h2><ol>' +
               '<li><b>' + esc(t('Kliknij tekst')) + '</b> ' + esc(t('na stronie obok i po prostu go popraw — po angielsku. Enter albo kliknięcie obok kończy.')) + '</li>' +
-              '<li><b>' + esc(t('Szablon tekstu')) + '</b> — ' + esc(t('nagłówek, podnagłówek, treść albo treść mała. To te same cztery role, co na stronie.')) + '</li>' +
+              '<li><b>' + esc(t('Szablon tekstu')) + '</b> — ' + esc(t('tytuł, podtytuł, treść główna albo podpis. To te same cztery role, co na stronie.')) + '</li>' +
               '<li><b>' + esc(t('Akapit i opis')) + '</b> — ' + esc(t('„Dodaj poniżej” wstawia nowy blok, „Kopiuj” robi kopię do podmiany treści, „Usuń” kasuje. Opis pod tytułem też: kliknij nagłówek, żeby go dodać, albo sam opis, żeby skasować.')) + '</li>' +
               '<li><b>' + esc(t('Zdjęcie')) + '</b> — ' + esc(t('kliknij, przeciągnij i kółkiem przybliż. Nowe wklejasz albo wybierasz w panelu obok.')) + '</li>' +
               '<li><b>' + esc(t('Formularz i stopka')) + '</b> — ' + esc(t('też są do kliknięcia; zmiana wchodzi na wszystkie strony.')) + '</li>' +

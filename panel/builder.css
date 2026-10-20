@@ -137,6 +137,16 @@
   font-size: .78rem;
   color: #3d3e40;
 }
+.stb__tools #stb-size {
+  min-width: 7.6rem;
+  font: inherit;
+  font-size: .78rem;
+  color: #161616;
+  background: #fff;
+  border: 1px solid rgba(22, 22, 22, .18);
+  border-radius: 8px;
+  padding: .28rem .35rem;
+}
 .stb__tools input[type="text"], .stb__meta input, .stb__meta textarea {
   font: inherit;
   color: #161616;

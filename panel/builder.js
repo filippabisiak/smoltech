@@ -168,7 +168,7 @@
             '<button type="button" data-act="bold" title="Bold"><b>B</b></button>' +
             '<button type="button" data-act="italic" title="Italic"><i>I</i></button>' +
             '<button type="button" data-act="under" title="Underline"><u>U</u></button>' +
-            '<label class="stb__mini" title="Text size">Size <select id="stb-size" title="Text size"><option value="">Size</option><option value="0.85rem">Small</option><option value="1rem">Normal</option><option value="1.25rem">Large</option><option value="1.6rem">Larger</option></select></label>' +
+            '<label class="stb__mini" title="Text size">Size <select id="stb-size" title="Caption, body text, subtitle, or title"><option value="">Size</option><option value="0.8125rem">Caption</option><option value="1.125rem">Body text</option><option value="1.28rem">Subtitle</option><option value="2.35rem">Title</option></select></label>' +
             '<div class="stb__color" id="stb-color" role="group" aria-label="Text color">' +
               '<span class="stb__color-lab">Color</span>' +
               '<button type="button" class="stb__swatch" data-color="#161616" style="background:#161616" title="#161616"></button>' +

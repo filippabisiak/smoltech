@@ -120,6 +120,10 @@ waitForItem().then(function (it) {
   assert.strictEqual(items.length, 4, 'the toolbar Add another also inserts in this list');
   assert.strictEqual(doc.getElementById('bottom').querySelectorAll(':scope > li').length, 2);
   assert.strictEqual(textOf(items[3]), 'Item');
+  var size = window.document.getElementById('host').querySelector('#stb-size');
+  var labels = Array.prototype.map.call(size.options, function (opt) { return opt.textContent; });
+  assert.deepStrictEqual(labels, ['Size', 'Caption', 'Body text', 'Subtitle', 'Title']);
+  assert.deepStrictEqual(Array.prototype.map.call(size.options, function (opt) { return opt.value; }), ['', '0.8125rem', '1.125rem', '1.28rem', '2.35rem']);
   console.log('builder-add.test.js ok');
 }).catch(function (err) {
   console.error(err);
