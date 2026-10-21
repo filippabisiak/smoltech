@@ -498,7 +498,7 @@
 .stb--side .stb__grp a.btn { padding: .42rem .5rem; text-align: center; white-space: normal; }
 .stb--side .stb__grp-h { font-size: .66rem; margin-bottom: .05rem; }
 .stb--side .stb__foot { padding-top: .15rem; background: #f3f3f4; }
-.stb--side .stb__swatch { width: 1.7rem; height: 1.7rem; }
+.stb--side .stb__grp button.stb__swatch { width: 1.7rem; height: 1.7rem; }
 .stb--side .stb__row .stb__mini,
 .stb--side .stb__hex { min-width: 0; width: 100%; }
 .stb--side .stb__tools #stb-size,
@@ -509,8 +509,10 @@
 .stb--side .stb__meta { padding: .5rem; border-radius: 10px; }
 .stb__color { flex: 1 0 100%; display: flex; flex-wrap: wrap; align-items: center; gap: .28rem; margin-top: .15rem; }
 .stb__color-lab { flex: 1 0 100%; font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #6d7076; }
-.stb__swatch { width: 1.35rem; height: 1.35rem; padding: 0; border-radius: 999px; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(22, 22, 22, .28); cursor: pointer; }
-.stb__swatch:hover, .stb__swatch:focus, .stb__swatch.is-on { box-shadow: 0 0 0 2px #161616; }
+.stb__grp button.stb__swatch { width: 1.35rem; height: 1.35rem; padding: 0; border-radius: 999px; border: 2px solid #161616; box-shadow: none; cursor: pointer; }
+.stb__grp button.stb__swatch:hover,
+.stb__grp button.stb__swatch:focus,
+.stb__grp button.stb__swatch.is-on { box-shadow: 0 0 0 2px #d10a11; }
 .stb__hex { display: inline-flex; align-items: center; gap: .25rem; font-size: .72rem; color: #3a3a3a; }
 .stb__hex input { width: 6.2rem; font: 600 .78rem/1.2 ui-monospace, monospace; padding: .2rem .35rem; border: 1px solid rgba(22, 22, 22, .2); border-radius: 6px; }
 .stb__side-tog { display: none; }

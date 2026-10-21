@@ -7,6 +7,7 @@
   var activeId = '';
   var API = '/panel/obsluga.php';
   var currentView = 'dash';
+  var editorPage = '';
   var overview = { pages: 0, machines: 0, machItems: 0, videos: 0 };
   var pageCache = null;
   var editing = null;
@@ -397,7 +398,9 @@
     });
     Array.prototype.forEach.call(document.querySelectorAll('.side__i'), function (btn) {
       var v = btn.getAttribute('data-view');
-      btn.classList.toggle('is-on', v === name || (name === 'editor' && v === 'pages') || (name === 'media' && v === 'settings'));
+      var on = v === name || (name === 'media' && v === 'settings');
+      if (name === 'editor') on = editorPage === '50-video' ? v === 'videos' : v === 'pages';
+      btn.classList.toggle('is-on', on);
     });
     side.classList.remove('is-open');
     if (name === 'dash') renderDash();
@@ -526,6 +529,7 @@
       b.addEventListener('click', function () {
         var go = b.getAttribute('data-go');
         if (go === 'home') openEditor('00-strona-glowna');
+        else if (go === 'videos') openEditor('50-video');
         else setView(go);
       });
     });
@@ -1154,8 +1158,15 @@
     return html;
   }
 
+  function leaveEditorOk() {
+    var pub = document.getElementById('btn-publish');
+    if (!pub || !pub.classList.contains('is-editor-dirty')) return true;
+    return window.confirm('There are unsaved changes. Leave without saving?');
+  }
+
   function openEditor(id, opts) {
     opts = opts || {};
+    editorPage = id || '';
     try { if (id) localStorage.setItem('stb-last-page', id); } catch (err) { /* ignore */ }
     if (window.STBuilder && typeof STBuilder.open === 'function') {
       rememberTrail(id, opts.trail || 'reset');
@@ -4695,7 +4706,17 @@
   });
   side.addEventListener('click', function (e) {
     var btn = e.target.closest('.side__i');
-    if (btn && btn.getAttribute('data-view')) setView(btn.getAttribute('data-view'));
+    if (!btn) return;
+    var view = btn.getAttribute('data-view');
+    if (!view) return;
+    if (view === 'videos') {
+      if (currentView === 'editor' && editorPage === '50-video') return;
+      if (!leaveEditorOk()) return;
+      openEditor('50-video');
+      return;
+    }
+    if (currentView === 'editor' && !leaveEditorOk()) return;
+    setView(view);
   });
   document.getElementById('btn-side').addEventListener('click', function () {
     side.classList.toggle('is-open');

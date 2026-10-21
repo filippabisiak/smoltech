@@ -150,6 +150,15 @@ waitForItem().then(function (it) {
   var painted = h2.querySelector('[style*="color"]');
   assert.ok(painted, 'a colour swatch colours the title without a word selection');
   assert.ok(/d10a11/i.test(painted.getAttribute('style') || ''), 'the title uses the swatch colour');
+  assert.ok(shell.querySelector('.stb__swatch[data-color="#ffffff"]'), 'white is one of the colours');
+  swatch.click();
+  assert.ok(!/d10a11/i.test(h2.innerHTML), 'clicking the same colour again clears it');
+  shell.querySelector('[data-act="bold"]').click();
+  assert.ok(h2.querySelector('strong'), 'bold applies to the clicked title');
+  assert.ok(shell.querySelector('[data-act="bold"]').classList.contains('is-on'), 'bold stays selected');
+  shell.querySelector('[data-act="bold"]').click();
+  assert.ok(!h2.querySelector('strong'), 'clicking bold again removes it');
+  assert.ok(!shell.querySelector('[data-act="bold"]').classList.contains('is-on'), 'bold turns off');
 
   var bullet = doc.getElementById('top').querySelectorAll(':scope > li');
   var last = bullet[bullet.length - 1];

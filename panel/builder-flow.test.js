@@ -130,6 +130,7 @@ waitForLead().then(function (lead) {
   host.querySelector('[data-act="bold"]').click();
   lead = doc.querySelector('p.lead');
   assert.strictEqual(textOf(lead), EN);
+  assert.ok(!lead.querySelector('strong'), 'clicking bold again removes it');
   assert.ok(!hasCyr(lead.innerHTML) || lead.innerHTML.indexOf(UK) < 0, 'second bold after undo did not paste the Ukrainian sentence');
   assert.ok(!hasCyr(textOf(lead)));
 

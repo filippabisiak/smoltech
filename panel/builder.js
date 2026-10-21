@@ -165,11 +165,11 @@
         '<div class="stb__tools" role="toolbar" aria-label="Editor tools">' +
           '<div class="stb__grp" data-grp="text">' +
             '<span class="stb__grp-h">Text</span>' +
-            '<p class="stb__grp-p">Click a title or a paragraph. A colour applies to the whole title, unless you have selected specific words.</p>' +
+            '<p class="stb__grp-p">Click a title or a paragraph. A colour applies to the whole title, unless you have selected specific words. Bold, italic, and underline turn off when you click them again.</p>' +
             '<div class="stb__row">' +
-              '<button type="button" data-act="bold" title="Bold"><b>B</b></button>' +
-              '<button type="button" data-act="italic" title="Italic"><i>I</i></button>' +
-              '<button type="button" data-act="under" title="Underline"><u>U</u></button>' +
+              '<button type="button" data-act="bold" aria-pressed="false" title="Bold. Click again to turn it off."><b>B</b></button>' +
+              '<button type="button" data-act="italic" aria-pressed="false" title="Italic. Click again to turn it off."><i>I</i></button>' +
+              '<button type="button" data-act="under" aria-pressed="false" title="Underline. Click again to turn it off."><u>U</u></button>' +
               '<button type="button" data-act="link" title="Link the selected words">Link</button>' +
             '</div>' +
             '<div class="stb__sub">' +
@@ -181,6 +181,7 @@
             '</div>' +
             '<div class="stb__color" id="stb-color" role="group" aria-label="Text color">' +
               '<span class="stb__color-lab">Colour</span>' +
+              '<button type="button" class="stb__swatch" data-color="#ffffff" style="background:#ffffff" title="White"></button>' +
               '<button type="button" class="stb__swatch" data-color="#161616" style="background:#161616" title="#161616"></button>' +
               '<button type="button" class="stb__swatch" data-color="#5c5c5c" style="background:#5c5c5c" title="#5c5c5c"></button>' +
               '<button type="button" class="stb__swatch" data-color="#d10a11" style="background:#d10a11" title="Brand #d10a11"></button>' +
@@ -501,9 +502,9 @@
         el.removeAttribute('spellcheck');
         el.removeAttribute('lang');
       });
-      clone.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel').forEach(function (el) { el.remove(); });
-      clone.querySelectorAll('.stb-ink-light, .stb-ink-dark, .stb-on, .stb-dragging, .stb-draghost').forEach(function (el) {
-        el.classList.remove('stb-ink-light', 'stb-ink-dark', 'stb-on', 'stb-dragging', 'stb-draghost');
+      clone.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel, .stb-cardtools').forEach(function (el) { el.remove(); });
+      clone.querySelectorAll('.stb-ink-light, .stb-ink-dark, .stb-on, .stb-dragging, .stb-draghost, .stb-tools-pad, .stb-droptarget').forEach(function (el) {
+        el.classList.remove('stb-ink-light', 'stb-ink-dark', 'stb-on', 'stb-dragging', 'stb-draghost', 'stb-tools-pad', 'stb-droptarget');
       });
       return { html: clone.innerHTML, texts: texts, ph: ph, hosts: hosts, sel: selectionSnap() };
     }
@@ -771,6 +772,7 @@
       var typing = input && typeof document !== 'undefined' && document.activeElement === input;
       if (input && !typing) input.value = color;
       markSwatches(typing ? input.value : color);
+      syncFormatTools(range);
     }
 
     function wordChar(ch) {
@@ -1046,8 +1048,14 @@
     host.querySelector('#stb-color').addEventListener('click', function (e) {
       var sw = e.target.closest && e.target.closest('.stb__swatch');
       if (!sw) return;
-      var color = sw.getAttribute('data-color') || '';
       var hex = host.querySelector('#stb-hex');
+      if (sw.classList.contains('is-on')) {
+        if (hex) hex.value = '';
+        markSwatches('');
+        paint('');
+        return;
+      }
+      var color = sw.getAttribute('data-color') || '';
       if (hex && color) hex.value = color;
       markSwatches(color);
       paint(color);
@@ -1250,13 +1258,18 @@
         '[data-st-builder] .hero__in{position:relative;z-index:2}',
         'html.stb-move .hero__in,html.stb-move .hero::before,html.stb-move .hero__emerge::after,html.stb-move .hero__bg::after,html.stb-move .grid-lines,html.stb-move .spark{pointer-events:none!important}',
         'html.stb-move .hero__bg,html.stb-move .hero__emerge,html.stb-move .hero__shot,html.stb-move figure,html.stb-move .tile__media,html.stb-move .card__media,html.stb-move .hero__bg img,html.stb-move .hero__emerge img,html.stb-move .hero__shot img,html.stb-move figure img,html.stb-move .tile__media img,html.stb-move .card__media img{pointer-events:auto!important;cursor:grab!important}',
-        '.stb-addone{display:inline-flex;margin:.4rem 0;padding:.28rem .7rem;border:1px dashed #d10a11;background:#fff;color:#9d1020;font:700 12px/1.2 Inter,system-ui,sans-serif;border-radius:999px;cursor:pointer}',
+        '.stb-addone{display:inline-flex;align-items:center;align-self:start;justify-self:start;height:auto;width:max-content;max-width:none;margin:.4rem 0;padding:.28rem .7rem;border:1px dashed #d10a11;background:#fff;color:#9d1020;font:700 12px/1.2 Inter,system-ui,sans-serif;border-radius:999px;cursor:pointer;white-space:nowrap}',
         '.stb-draghost{position:relative}',
-        '.stb-drag{position:absolute;z-index:40;top:10px;left:10px;display:inline-flex;align-items:center;gap:.35rem;margin:0;padding:.32rem .7rem;border:1px solid #d10a11;border-radius:999px;background:#fff;color:#9d1020;font:700 12px/1.2 Inter,system-ui,sans-serif;cursor:grab;box-shadow:0 6px 16px rgba(0,0,0,.18);user-select:none}',
+        '.stb-drag{position:absolute;z-index:40;top:10px;left:10px;display:inline-flex;align-items:center;align-self:start;justify-self:start;gap:.35rem;height:auto;width:max-content;max-width:none;margin:0;padding:.32rem .7rem;border:1px solid #d10a11;border-radius:999px;background:#fff;color:#9d1020;font:700 12px/1.2 Inter,system-ui,sans-serif;cursor:grab;box-shadow:0 6px 16px rgba(0,0,0,.18);user-select:none;white-space:nowrap;touch-action:none}',
         '.stb-drag--item{left:auto;right:10px}',
-        '.stb-drag::before{content:"";width:.85rem;height:.62rem;background:linear-gradient(#9d1020,#9d1020) 0 0/100% 2px no-repeat,linear-gradient(#9d1020,#9d1020) 0 50%/100% 2px no-repeat,linear-gradient(#9d1020,#9d1020) 0 100%/100% 2px no-repeat}',
+        '.stb-drag::before{content:"";width:.85rem;height:.62rem;flex:0 0 auto;background:linear-gradient(#9d1020,#9d1020) 0 0/100% 2px no-repeat,linear-gradient(#9d1020,#9d1020) 0 50%/100% 2px no-repeat,linear-gradient(#9d1020,#9d1020) 0 100%/100% 2px no-repeat}',
         '.stb-drag:active{cursor:grabbing}',
-        '.stb-drag--beside{position:static;display:flex;width:max-content;max-width:calc(100% - .5rem);margin:.35rem 0}',
+        '.stb-dragging{position:relative;z-index:60;opacity:.96;box-shadow:0 16px 36px rgba(0,0,0,.28)}',
+        '.stb-droptarget{outline:2px dashed #d10a11;outline-offset:6px}',
+        '.stb-drag--beside{position:static;display:inline-flex;width:max-content;max-width:none;margin:.35rem 0}',
+        '.stb-cardtools{position:absolute;z-index:40;top:.4rem;right:.45rem;left:.45rem;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;justify-content:flex-end;gap:.35rem;width:auto;max-width:none;pointer-events:none}',
+        '.stb-cardtools .stb-drag,.stb-cardtools .stb-addone{position:static;inset:auto;margin:0;height:auto;width:max-content;max-width:none;padding:.22rem .5rem;font-size:11px;white-space:nowrap;align-self:center;flex:0 0 auto;pointer-events:auto}',
+        '.stb-tools-pad{padding-top:2.75rem!important}',
         '.stb-slotlabel{display:block;margin:.2rem 0 .4rem;font:600 12px/1.3 Inter,system-ui,sans-serif;color:#8d1018}',
         '.proof__ico,.about-dir__ico{cursor:pointer}',
         '.proof__ico:hover,.about-dir__ico:hover{outline:2px solid #d10a11;outline-offset:3px}',
@@ -1493,6 +1506,7 @@
       d.addEventListener('selectionchange', function () {
         pinSideScroll();
         var live = d.getSelection();
+        try { syncFormatTools(live && live.rangeCount ? live.getRangeAt(0) : null); } catch (err3) { /* the toolbar keeps its state */ }
         if (live && live.rangeCount && !live.isCollapsed) {
         try { heldRange = live.getRangeAt(0).cloneRange(); } catch (err) { heldRange = null; }
         var liveText = flat(live.toString());
@@ -1839,7 +1853,7 @@
       var source = h || el;
       if (!h && el.querySelector && el.querySelector('.stb-drag, .stb-addone, .stb-slotlabel')) {
         source = el.cloneNode(true);
-        source.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel').forEach(function (n) { n.remove(); });
+        source.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel, .stb-cardtools').forEach(function (n) { n.remove(); });
       }
       var t = (source.textContent) || '';
       t = t.replace(/[\u200C\u200D]/g, '').replace(/\s+/g, ' ').trim();
@@ -2656,15 +2670,28 @@
       });
     }
 
+    function clearCardTools() {
+      if (!doc) return;
+      doc.querySelectorAll('.stb-tools-pad').forEach(function (n) { n.classList.remove('stb-tools-pad'); });
+      doc.querySelectorAll('.stb-cardtools').forEach(function (bar) {
+        var parent = bar.parentElement;
+        if (!parent) { bar.remove(); return; }
+        while (bar.firstChild) parent.insertBefore(bar.firstChild, bar);
+        bar.remove();
+      });
+    }
+
     function placeInlineAdd() {
       if (!doc) return;
+      clearCardTools();
       doc.querySelectorAll('.stb-addone').forEach(function (n) { n.remove(); });
       var item = level === 'item' && currentItem && currentItem.isConnected && currentItem.matches && currentItem.matches(REPEAT_SEL) ? currentItem : null;
       if (!item) return;
       var variant = item.matches('ul.model-strip > li');
+      var overlay = overlayTools(item);
       var b = doc.createElement('button');
       b.type = 'button';
-      b.className = 'stb-addone';
+      b.className = 'stb-addone' + (overlay ? ' stb-addone--card' : '');
       b.setAttribute('data-stb-ui', '1');
       b.textContent = variant ? 'Add variant' : 'Add another';
       b.addEventListener('click', function (e) {
@@ -2673,18 +2700,51 @@
         if (variant) addVariant();
         else addAnother(item);
       });
-      item.insertAdjacentElement('afterend', b);
+      /* A sibling button becomes another cell in a row or grid and shoves the cards apart. */
+      if (overlay) item.appendChild(b);
+      else item.insertAdjacentElement('afterend', b);
+    }
+
+    var CARD_ITEM = 'li.proof__i, li.stats__i, li.partners__card, .client-wall > li, ul.model-strip > li';
+
+    function isCardItem(node) {
+      return !!(node && node.matches && node.matches(CARD_ITEM));
+    }
+
+    function columnCount(el) {
+      var cs;
+      try { cs = doc.defaultView.getComputedStyle(el); } catch (err) { return 1; }
+      if (!cs) return 1;
+      var display = cs.display || '';
+      if (display === 'flex' || display === 'inline-flex') {
+        var dir = cs.flexDirection || 'row';
+        return (dir === 'column' || dir === 'column-reverse') ? 1 : 2;
+      }
+      if (display !== 'grid' && display !== 'inline-grid') return 1;
+      var cols = String(cs.gridTemplateColumns || '').trim();
+      if (!cols || cols === 'none') return 1;
+      return cols.split(/\s+/).length;
+    }
+
+    /* Cards that share a row must keep Drag and Add another inside the card. */
+    function overlayTools(node) {
+      if (!node || !node.parentElement) return false;
+      if (isCardItem(node)) return true;
+      return columnCount(node.parentElement) > 1;
     }
 
     function dragLabel(node, kind) {
       if (kind === 'section') return 'Drag section';
       if (node.matches && node.matches('ul.model-strip > li')) return 'Drag tab';
+      if (node.matches && node.matches('li.proof__i, li.stats__i')) return 'Drag stat';
+      if (node.matches && node.matches('li.partners__card, .client-wall > li')) return 'Drag card';
       if (node.matches && node.matches('li')) return 'Drag bullet';
       return 'Drag card';
     }
 
     function placeDragHandle() {
       if (!doc) return;
+      clearCardTools();
       doc.querySelectorAll('.stb-drag').forEach(function (n) { n.remove(); });
       doc.querySelectorAll('.stb-draghost').forEach(function (n) { n.classList.remove('stb-draghost'); });
       if (!currentSection || !currentSection.isConnected) return;
@@ -2692,10 +2752,35 @@
       if (section && section.parentElement && section.parentElement.id === 'main') attachDrag(section, 'section');
       var item = level === 'item' && currentItem && currentItem.isConnected ? currentItem : null;
       if (item && item.id !== 'zapyt' && !(item.closest && item.closest('#zapyt'))) attachDrag(item, 'item');
+      if (item && overlayTools(item)) groupCardTools(item);
+    }
+
+    function groupCardTools(item) {
+      if (!item || !item.isConnected) return;
+      var drag = null;
+      var add = null;
+      Array.prototype.forEach.call(item.children, function (el) {
+        if (!el.matches) return;
+        if (el.matches('.stb-drag')) drag = el;
+        else if (el.matches('.stb-addone')) add = el;
+      });
+      if (!drag && !add) return;
+      var pos = 'static';
+      try { pos = doc.defaultView.getComputedStyle(item).position || 'static'; } catch (err) { pos = 'static'; }
+      if (pos === 'static') item.classList.add('stb-draghost');
+      var bar = doc.createElement('div');
+      bar.className = 'stb-cardtools';
+      bar.setAttribute('data-stb-ui', '1');
+      bar.setAttribute('contenteditable', 'false');
+      if (drag) bar.appendChild(drag);
+      if (add) bar.appendChild(add);
+      item.insertBefore(bar, item.firstChild);
+      if (!item.matches('li.proof__i, li.stats__i, ul.model-strip > li')) item.classList.add('stb-tools-pad');
     }
 
     function besidePhrase(node) {
-      return !!(node && node.matches && node.matches('p, li, h1, h2, h3, h4, h5, h6, td, th, dd, dt, figcaption, summary, blockquote, .proof__n, .proof__l'));
+      if (!node || !node.matches || overlayTools(node)) return false;
+      return node.matches('p, li, h1, h2, h3, h4, h5, h6, td, th, dd, dt, figcaption, summary, blockquote, .proof__n, .proof__l');
     }
 
     function attachDrag(node, kind) {
@@ -2721,41 +2806,133 @@
     function bindDrag(btn, node, kind, beside) {
       var dragging = false;
       var moved = false;
-      var snapped = false;
+      var originX = 0;
       var originY = 0;
-      function siblings() {
+      var lastX = 0;
+      var lastY = 0;
+      var slots = [];
+      var startIndex = -1;
+
+      function measureSlots() {
         var parent = node.parentElement;
         if (!parent) return [];
-        return Array.prototype.filter.call(parent.children, function (el) {
-          if (el === node) return false;
-          if (!el.matches) return false;
-          if (el.matches('script, style, .stb-drag, .stb-addone, .stb-slotlabel')) return false;
-          return true;
-        });
-      }
-      function dropAt(y) {
-        var best = null;
-        var bestDist = Infinity;
-        var after = false;
-        siblings().forEach(function (el) {
+        var list = [];
+        Array.prototype.forEach.call(parent.children, function (el) {
+          if (!el.matches) return;
+          if (el.matches('script, style, .stb-drag, .stb-addone, .stb-slotlabel, .stb-cardtools')) return;
           var r = el.getBoundingClientRect();
-          if (!r.height && !r.width) return;
-          var mid = r.top + r.height / 2;
-          var dist = Math.abs(y - mid);
-          if (dist < bestDist) {
-            bestDist = dist;
-            best = el;
-            after = y > mid;
-          }
+          if (!r.width && !r.height) return;
+          list.push({
+            el: el,
+            left: r.left,
+            top: r.top,
+            right: r.right,
+            bottom: r.bottom,
+            width: r.width,
+            height: r.height
+          });
         });
-        if (!best) return;
+        return list;
+      }
+
+      /* Where the card's centre would sit if it followed the pointer from its start. */
+      function projected(x, y) {
+        var home = slots[startIndex];
+        if (!home) return null;
+        return {
+          x: home.left + home.width / 2 + (x - originX),
+          y: home.top + home.height / 2 + (y - originY),
+          dx: x - originX,
+          dy: y - originY
+        };
+      }
+
+      function slotAt(x, y) {
+        var found = -1;
+        for (var i = 0; i < slots.length; i++) {
+          var s = slots[i];
+          if (x >= s.left && x <= s.right && y >= s.top && y <= s.bottom) found = i;
+        }
+        return found;
+      }
+
+      /* The nearest slot the drag has actually crossed into, not merely the closest neighbour. */
+      function slotPastMidpoint(point) {
+        var home = slots[startIndex];
+        var hx = home.left + home.width / 2;
+        var hy = home.top + home.height / 2;
+        var vertical = Math.abs(point.dy) >= Math.abs(point.dx);
+        var best = -1;
+        var bestDist = Infinity;
+        for (var i = 0; i < slots.length; i++) {
+          if (i === startIndex) continue;
+          var s = slots[i];
+          var sx = s.left + s.width / 2;
+          var sy = s.top + s.height / 2;
+          if (vertical) {
+            if (point.dy > 0 && sy <= hy) continue;
+            if (point.dy < 0 && sy >= hy) continue;
+            var midY = (hy + sy) / 2;
+            if (point.dy > 0 && point.y < midY) continue;
+            if (point.dy < 0 && point.y > midY) continue;
+          } else {
+            if (point.dx > 0 && sx <= hx) continue;
+            if (point.dx < 0 && sx >= hx) continue;
+            var midX = (hx + sx) / 2;
+            if (point.dx > 0 && point.x < midX) continue;
+            if (point.dx < 0 && point.x > midX) continue;
+          }
+          var dist = (point.x - sx) * (point.x - sx) + (point.y - sy) * (point.y - sy);
+          if (dist < bestDist) { bestDist = dist; best = i; }
+        }
+        return best;
+      }
+
+      function landingAt(x, y) {
+        if (startIndex < 0) return -1;
+        var point = projected(x, y);
+        if (!point) return -1;
+        var direct = slotAt(point.x, point.y);
+        if (direct >= 0) return direct;
+        return slotPastMidpoint(point);
+      }
+
+      function markLanding(index) {
+        for (var i = 0; i < slots.length; i++) {
+          if (slots[i].el === node) continue;
+          slots[i].el.classList.toggle('stb-droptarget', i === index && index !== startIndex);
+        }
+      }
+
+      function clearLanding() {
+        for (var i = 0; i < slots.length; i++) slots[i].el.classList.remove('stb-droptarget');
+      }
+
+      function shift(dx, dy) {
+        var t = 'translate(' + Math.round(dx) + 'px,' + Math.round(dy) + 'px)';
+        node.style.transform = t;
+        if (beside) btn.style.transform = t;
+      }
+
+      function clearShift() {
+        node.style.transform = '';
+        if (beside) btn.style.transform = '';
+        node.classList.remove('stb-dragging');
+      }
+
+      function applyOrder(targetIndex) {
+        var parent = node.parentElement;
+        if (!parent || targetIndex < 0 || targetIndex >= slots.length || targetIndex === startIndex) return;
+        var order = slots.map(function (s) { return s.el; });
+        var from = order.indexOf(node);
+        if (from < 0) return;
+        order.splice(from, 1);
+        order.splice(targetIndex, 0, node);
+        var next = order[targetIndex + 1] || null;
+        if (next && next.parentElement === parent) parent.insertBefore(node, next);
+        else if (order[targetIndex - 1] && order[targetIndex - 1].parentElement === parent) order[targetIndex - 1].after(node);
         var form = doc.getElementById('zapyt');
-        if (after) {
-          if (form && best === form) form.before(node);
-          else best.after(node);
-        } else if (form && best === form) form.before(node);
-        else best.before(node);
-        if (form && node.parentElement === form.parentElement) {
+        if (form && node !== form && node.parentElement === form.parentElement) {
           var scan = form.nextElementSibling;
           while (scan) {
             if (scan === node) { form.before(node); break; }
@@ -2764,31 +2941,55 @@
         }
         if (beside && node.parentElement) node.parentElement.insertBefore(btn, node);
       }
+
       btn.addEventListener('pointerdown', function (e) {
         if (e.button != null && e.button !== 0) return;
+        if (typeof e.clientX !== 'number' || typeof e.clientY !== 'number') return;
         e.preventDefault();
         e.stopPropagation();
         dragging = true;
         moved = false;
-        snapped = false;
+        originX = e.clientX;
         originY = e.clientY;
+        lastX = originX;
+        lastY = originY;
+        slots = measureSlots();
+        startIndex = -1;
+        for (var i = 0; i < slots.length; i++) if (slots[i].el === node) startIndex = i;
         try { btn.setPointerCapture(e.pointerId); } catch (err) { /* the handle still receives the move */ }
       });
       btn.addEventListener('pointermove', function (e) {
         if (!dragging) return;
-        if (!moved && Math.abs(e.clientY - originY) < 4) return;
-        if (!snapped) {
-          snapped = true;
-          beforeChange();
-        }
+        if (typeof e.clientX !== 'number' || typeof e.clientY !== 'number') return;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        var dx = lastX - originX;
+        var dy = lastY - originY;
+        if (!moved && Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
         moved = true;
         e.preventDefault();
-        dropAt(e.clientY);
+        node.classList.add('stb-dragging');
+        shift(dx, dy);
+        markLanding(landingAt(lastX, lastY));
       });
-      function finish() {
+      function finish(e) {
         if (!dragging) return;
         dragging = false;
-        if (!moved) return;
+        var x = e && typeof e.clientX === 'number' ? e.clientX : lastX;
+        var y = e && typeof e.clientY === 'number' ? e.clientY : lastY;
+        var target = moved ? landingAt(x, y) : -1;
+        clearShift();
+        clearLanding();
+        if (!moved || target < 0 || target === startIndex) return;
+        var form = doc.getElementById('zapyt');
+        if (form) {
+          var formAt = -1;
+          for (var i = 0; i < slots.length; i++) if (slots[i].el === form) formAt = i;
+          if (formAt >= 0 && node !== form && target > formAt) target = formAt;
+          if (target === startIndex) return;
+        }
+        beforeChange();
+        applyOrder(target);
         if (kind === 'item' && node.matches && node.matches('ul.model-strip > li')) reorderMatrix(matrixRoot(node));
         if (node.matches && node.matches('a.tile') && node.parentElement) reflowTiles(node.parentElement);
         if (node.matches && node.matches('article.mach') && node.parentElement) renumberMach(node.parentElement);
@@ -3010,7 +3211,7 @@
         return;
       }
       var sib = dir < 0 ? node.previousElementSibling : node.nextElementSibling;
-      while (sib && sib.matches && sib.matches('script, style')) sib = dir < 0 ? sib.previousElementSibling : sib.nextElementSibling;
+      while (sib && sib.matches && sib.matches('script, style, .stb-drag, .stb-addone, .stb-slotlabel, .stb-cardtools')) sib = dir < 0 ? sib.previousElementSibling : sib.nextElementSibling;
       if (!sib) return;
       beforeChange();
       if (dir < 0) sib.before(node); else sib.after(node);
@@ -3610,54 +3811,160 @@
       markDirty(whereOf(block));
     }
 
+    function formatTags(cmd) {
+      if (cmd === 'bold') return ['STRONG', 'B'];
+      if (cmd === 'italic') return ['EM', 'I'];
+      return ['U'];
+    }
+
+    function formatMark(node, hostEl, cmd) {
+      var el = node && node.nodeType === 1 ? node : (node && node.parentElement);
+      if (!el || !el.closest || !hostEl) return null;
+      var tags = formatTags(cmd);
+      var i, mark;
+      for (i = 0; i < tags.length; i++) {
+        mark = el.closest(tags[i]);
+        if (mark && mark !== hostEl && hostEl.contains(mark)) return mark;
+      }
+      return null;
+    }
+
+    function textsTouching(hostEl, range) {
+      if (!hostEl || !range) return [];
+      return rawTextNodes(hostEl).filter(function (n) {
+        if (!n.nodeValue || !/\S/.test(n.nodeValue)) return false;
+        try {
+          return range.intersectsNode(n)
+            && !(n === range.endContainer && range.endOffset === 0)
+            && !(n === range.startContainer && range.startOffset >= n.nodeValue.length);
+        } catch (err) { return false; }
+      });
+    }
+
+    function formatCovers(range, cmd) {
+      if (!range || !doc) return false;
+      var hostEl = phraseHost(range.commonAncestorContainer);
+      if (!hostEl) return false;
+      if (range.collapsed) return !!formatMark(range.startContainer, hostEl, cmd);
+      var nodes = textsTouching(hostEl, range);
+      if (!nodes.length) return !!formatMark(range.startContainer, hostEl, cmd);
+      var i;
+      for (i = 0; i < nodes.length; i++) if (!formatMark(nodes[i], hostEl, cmd)) return false;
+      return true;
+    }
+
+    function formatTarget() {
+      var live = savedRange();
+      if (live && !live.collapsed && flat(live.toString())) return live;
+      if (heldRange && heldRange.startContainer && heldRange.startContainer.isConnected && !heldRange.collapsed && flat(heldRange.toString())) {
+        try { return heldRange.cloneRange(); } catch (err) { /* use the clicked phrase */ }
+      }
+      var block = textBlock();
+      var hostEl = block && phraseHost(block);
+      if (!hostEl) return null;
+      try {
+        var whole = doc.createRange();
+        whole.selectNodeContents(hostEl);
+        return flat(whole.toString()) ? whole : null;
+      } catch (err2) { return null; }
+    }
+
+    function pullFormat(mark, node) {
+      var parent = mark.parentNode;
+      if (!parent) return;
+      var child = node;
+      while (child.parentNode && child.parentNode !== mark) child = child.parentNode;
+      if (child.parentNode !== mark) return;
+      var left = mark.cloneNode(false);
+      var right = mark.cloneNode(false);
+      while (mark.firstChild && mark.firstChild !== child) left.appendChild(mark.firstChild);
+      while (child.nextSibling) right.appendChild(child.nextSibling);
+      if (left.childNodes.length) parent.insertBefore(left, mark);
+      parent.insertBefore(child, mark);
+      if (right.childNodes.length) parent.insertBefore(right, mark);
+      parent.removeChild(mark);
+    }
+
+    function syncFormatTools(range) {
+      if (!host) return;
+      var acts = { bold: 'bold', italic: 'italic', under: 'underline' };
+      Object.keys(acts).forEach(function (act) {
+        var btn = host.querySelector('[data-act="' + act + '"]');
+        if (!btn) return;
+        var on = !!(range && formatCovers(range, acts[act]));
+        btn.classList.toggle('is-on', on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+
+    function formatMessage(removed) {
+      if (mode === 'en') return removed
+        ? 'Formatting removed from the English text only. The Ukrainian sentence is unchanged.'
+        : 'Formatting applied to the English text only. The Ukrainian sentence is unchanged.';
+      if (mode === 'ru') return removed
+        ? 'Formatting removed from the Russian text only. The Ukrainian sentence is unchanged.'
+        : 'Formatting applied to the Russian text only. The Ukrainian sentence is unchanged.';
+      return removed ? 'Formatting removed. Save to publish.' : 'Formatting applied. Save to publish.';
+    }
+
     function fmt(cmd) {
       if (!doc) return;
       var tag = cmd === 'bold' ? 'strong' : (cmd === 'italic' ? 'em' : (cmd === 'underline' ? 'u' : ''));
       if (!tag) return;
-      var range = savedRange();
-      if (!range || range.collapsed || !flat(range.toString())) { say('Select the words you want to format.', 'err'); return; }
-      var host = phraseHost(range.commonAncestorContainer);
-      if (!host || (range.endContainer && phraseHost(range.endContainer) !== host)) {
+      var range = formatTarget();
+      if (!range) { say('Click a title or select the words you want to format.', 'err'); return; }
+      var phrase = phraseHost(range.commonAncestorContainer);
+      if (!phrase || (range.endContainer && phraseHost(range.endContainer) !== phrase)) {
         say('Select words inside a single sentence.', 'err');
         return;
       }
       /* Format the words on screen. Do not rebuild the sentence from the other language. */
-      if (mode === 'en' || mode === 'ru') ensureUkSnap(host);
+      if (mode === 'en' || mode === 'ru') ensureUkSnap(phrase);
+      var selA = textOffset(phrase, range.startContainer, range.startOffset);
+      var selB = textOffset(phrase, range.endContainer, range.endOffset);
+      var removing = formatCovers(range, cmd);
       beforeChange();
-      var node = range.commonAncestorContainer;
-      var el = node && node.nodeType === 1 ? node : (node && node.parentElement);
-      var on = el && el.closest && el.closest(tag);
-      if (on && host.contains(on) && on !== host) {
-        unwrapEl(on);
-        tidyInline(host);
-        if (mode === 'en') { host.stbEnEdited = true; host.stbStored = 'en'; }
-        if (mode === 'ru') host.stbRuEdited = true;
-        markDirty(whereOf(host));
-        say('Formatting removed. Save to publish.');
-        return;
+      if (removing) {
+        selectedTexts(phrase, range).forEach(function (n) {
+          var mark = formatMark(n, phrase, cmd);
+          if (mark) pullFormat(mark, n);
+        });
+      } else {
+        var nodesF = selectedTexts(phrase, range);
+        if (!nodesF.length) { say('Click a title or select the words you want to format.', 'err'); return; }
+        nodesF.forEach(function (n) {
+          if (formatMark(n, phrase, cmd)) return;
+          var w = doc.createElement(tag);
+          if (mode === 'ru') w.setAttribute('data-st-ru-only', '');
+          n.parentNode.insertBefore(w, n);
+          w.appendChild(n);
+        });
+        phrase.querySelectorAll(tag).forEach(function (x) {
+          var nx = x.nextSibling;
+          while (nx && nx.nodeType === 1 && nx.tagName === x.tagName && !nx.attributes.length && !x.attributes.length) {
+            while (nx.firstChild) x.appendChild(nx.firstChild);
+            var gone = nx; nx = nx.nextSibling; gone.parentNode.removeChild(gone);
+          }
+        });
       }
-      var nodesF = selectedTexts(host, range);
-      if (!nodesF.length) { say('Select the words you want to format.', 'err'); return; }
-      nodesF.forEach(function (n) {
-        var w = doc.createElement(tag);
-        if (mode === 'ru') w.setAttribute('data-st-ru-only', '');
-        n.parentNode.insertBefore(w, n);
-        w.appendChild(n);
-      });
-      host.querySelectorAll(tag).forEach(function (x) {
-        var nx = x.nextSibling;
-        while (nx && nx.nodeType === 1 && nx.tagName === x.tagName && !nx.attributes.length && !x.attributes.length) {
-          while (nx.firstChild) x.appendChild(nx.firstChild);
-          var gone = nx; nx = nx.nextSibling; gone.parentNode.removeChild(gone);
+      tidyInline(phrase);
+      if (mode === 'en') { phrase.stbEnEdited = true; phrase.stbStored = 'en'; }
+      if (mode === 'ru') phrase.stbRuEdited = true;
+      markDirty(whereOf(phrase));
+      if (selA >= 0 && selB > selA) {
+        phrase.stbLastSel = [selA, selB];
+        var back = rangeAt(phrase, selA, selB);
+        if (back) {
+          try {
+            var gs = doc.getSelection();
+            gs.removeAllRanges();
+            gs.addRange(back);
+            heldRange = back.cloneRange();
+            syncFormatTools(back);
+          } catch (err) { syncFormatTools(null); }
         }
-      });
-      tidyInline(host);
-      if (mode === 'en') { host.stbEnEdited = true; host.stbStored = 'en'; }
-      if (mode === 'ru') host.stbRuEdited = true;
-      markDirty(whereOf(host));
-      say(mode === 'en'
-        ? 'Formatting applied to the English text only. The Ukrainian sentence is unchanged.'
-        : (mode === 'ru' ? 'Formatting applied to the Russian text only. The Ukrainian sentence is unchanged.' : 'Formatting applied. Save to publish.'));
+      } else syncFormatTools(null);
+      say(formatMessage(removing));
     }
 
     function singleHash(raw) {
@@ -5974,10 +6281,10 @@
           STColor.normalize(host);
         });
       }
-      doc.querySelectorAll('.stb-ink-light, .stb-ink-dark, .stb-on, .stb-dragging, .stb-draghost').forEach(function (el) {
-        el.classList.remove('stb-ink-light', 'stb-ink-dark', 'stb-on', 'stb-dragging', 'stb-draghost');
+      doc.querySelectorAll('.stb-ink-light, .stb-ink-dark, .stb-on, .stb-dragging, .stb-draghost, .stb-tools-pad, .stb-droptarget').forEach(function (el) {
+        el.classList.remove('stb-ink-light', 'stb-ink-dark', 'stb-on', 'stb-dragging', 'stb-draghost', 'stb-tools-pad', 'stb-droptarget');
       });
-      doc.querySelectorAll('.stb-addone, .stb-slotlabel, .stb-drag').forEach(function (el) { el.remove(); });
+      doc.querySelectorAll('.stb-addone, .stb-slotlabel, .stb-drag, .stb-cardtools').forEach(function (el) { el.remove(); });
       doc.querySelectorAll('.proof__ico, .about-dir__ico').forEach(function (el) {
         if (el.getAttribute('title') === 'Change icon') el.removeAttribute('title');
       });
@@ -6477,8 +6784,8 @@
       var copy = src.cloneNode(true);
       saved.forEach(function (row) { if (row[0].parentNode) row[0].nodeValue = row[1]; });
       if (copy.querySelectorAll) {
-        copy.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel').forEach(function (n) { n.remove(); });
-        copy.classList.remove('stb-draghost');
+        copy.querySelectorAll('.stb-drag, .stb-addone, .stb-slotlabel, .stb-cardtools').forEach(function (n) { n.remove(); });
+        copy.classList.remove('stb-draghost', 'stb-tools-pad', 'stb-droptarget', 'stb-dragging');
       }
       return copy;
     }

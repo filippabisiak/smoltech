@@ -50,17 +50,26 @@ function st_is_https(): bool
     return (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
 }
 
+function st_local_preview(): bool
+{
+    $host = st_request_host();
+    return $host === '127.0.0.1' || $host === 'localhost' || $host === '::1';
+}
+
 function st_security_headers(): void
 {
     header('X-Content-Type-Options: nosniff');
-    header('X-Frame-Options: DENY');
+    /* The editor browser embeds this page. Localhost only; the live site stays unframeable. */
+    $local = st_local_preview();
+    if (!$local) header('X-Frame-Options: DENY');
     header('Referrer-Policy: no-referrer');
     header('X-Robots-Tag: noindex, nofollow, noarchive');
     header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
     header('Cache-Control: no-store, no-cache, must-revalidate, private');
     header('Pragma: no-cache');
+    $ancestors = $local ? '*' : "'none'";
     header(
-        "Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com; font-src 'self'; connect-src 'self'; frame-src 'self' https://www.google.com https://maps.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        "Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com; font-src 'self'; connect-src 'self'; frame-src 'self' https://www.google.com https://maps.google.com; frame-ancestors $ancestors; base-uri 'self'; form-action 'self'"
     );
 }
 
